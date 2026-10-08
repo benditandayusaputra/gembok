@@ -3,701 +3,216 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>GEMBOK Simulasi Kasus Nyata</title>
-<meta name="description" content="Simulasi pemeriksaan dokumen ber-chip GEMBOK: paspor, ijazah, pita cukai, dan kartu akses, dengan ML-KEM-768 dan LMS yang berjalan di peramban.">
+<title>GEMBOK Simulasi 3D</title>
+<meta name="description" content="Simulasi 3D pemeriksaan dokumen ber-chip GEMBOK di autogate, meja HRD, gudang cukai, dan pintu ruang server, dengan ML-KEM-768 dan LMS yang berjalan di peramban.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}
+</script>
 <style>
 :root{
-  --bg:#f6f7f9;--kertas:#ffffff;--tinta:#1d2430;--redup:#5f6b7a;--garis:#d9dee5;--garis2:#e9ecf1;
-  --host:#2a6496;--bus:#5b3f99;--vault:#b3261e;--core:#2e7d4f;--unit:#16808a;--puf:#c2621a;
-  --ok:#2e7d4f;--ok-bg:#e8f3ec;--gagal:#b3261e;--gagal-bg:#fbeceb;--tunggu:#8a94a3;
+  --kaca:rgba(14,19,27,.66);--kaca2:rgba(255,255,255,.05);--tepi:rgba(255,255,255,.09);
+  --teks:#e9eef4;--redup:#9aa7b6;--samar:#6b7787;
+  --biru:#4aa3ff;--ok:#2fd67b;--gagal:#ff4d4d;--oranye:#ff9a3c;--ungu:#a98bff;--toska:#33d1c6;
   --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
 }
 *{box-sizing:border-box}
-html,body{margin:0}
-body{background:var(--bg);color:var(--tinta);font-family:var(--sans);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
-a{color:var(--host)}
-button{font:inherit;cursor:pointer}
-.bungkus{max-width:1180px;margin:0 auto;padding:0 20px}
-header.atas{background:var(--kertas);border-bottom:1px solid var(--garis)}
-header.atas .bungkus{display:flex;align-items:center;gap:14px;height:58px}
-.merek{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.06em}
-.bendera{width:22px;height:15px;border:1px solid #c9ced6;display:inline-block;background:linear-gradient(#d0242b 50%,#fff 50%)}
-.merek small{font-weight:500;letter-spacing:0;color:var(--redup);font-size:14px}
-.kanan{margin-left:auto;display:flex;gap:10px;align-items:center}
-.bahasa{display:flex;border:1px solid var(--garis);border-radius:6px;overflow:hidden}
-.bahasa button{border:0;background:var(--kertas);padding:5px 10px;font-size:13px;color:var(--redup)}
-.bahasa button[aria-pressed="true"]{background:var(--tinta);color:#fff}
-.tautan{font-size:14px;text-decoration:none;border:1px solid var(--garis);padding:5px 10px;border-radius:6px;background:var(--kertas)}
-.pembuka{padding:30px 0 10px}
-.pembuka h1{font-size:30px;line-height:1.2;margin:0 0 8px;max-width:820px}
-.pembuka p{margin:0;color:var(--redup);max-width:820px}
-.penerbit{margin-top:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:var(--kertas);border:1px solid var(--garis);border-left:4px solid var(--bus);border-radius:8px;padding:10px 14px;font-size:14px}
-.penerbit .lbl{font-weight:600}
-.penerbit code{font-family:var(--mono);font-size:13px;color:var(--bus)}
-.bilah{width:140px;height:6px;background:var(--garis2);border-radius:3px;overflow:hidden;position:relative}
-.bilah i{position:absolute;inset:0;width:40%;background:var(--bus);border-radius:3px;animation:geser 1.2s ease-in-out infinite}
+html,body{margin:0;height:100%;background:#10151c;color:var(--teks);font-family:var(--sans);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased;overflow:hidden}
+button{font:inherit;color:inherit;cursor:pointer}
+a{color:var(--biru)}
+#dunia{position:fixed;inset:0;width:100%;height:100%;display:block;outline:none;touch-action:none}
+.kaca{background:var(--kaca);backdrop-filter:blur(16px) saturate(140%);-webkit-backdrop-filter:blur(16px) saturate(140%);border:1px solid var(--tepi);border-radius:14px;box-shadow:0 18px 50px rgba(0,0,0,.35)}
+header.atas{position:fixed;left:16px;right:16px;top:14px;height:54px;display:flex;align-items:center;gap:14px;padding:0 10px 0 16px;z-index:5}
+.merek{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.08em;white-space:nowrap}
+.bendera{width:22px;height:15px;border-radius:2px;background:linear-gradient(#e70011 50%,#fff 50%);box-shadow:0 0 0 1px rgba(255,255,255,.25)}
+.merek small{font-weight:500;letter-spacing:0;color:var(--redup)}
+nav.kasus{display:flex;gap:6px;margin:0 auto}
+nav.kasus button{display:flex;align-items:center;gap:8px;border:1px solid transparent;background:transparent;border-radius:10px;padding:7px 12px;color:var(--redup);white-space:nowrap}
+nav.kasus button i{width:8px;height:8px;border-radius:50%;background:var(--w)}
+nav.kasus button[aria-selected="true"]{background:var(--kaca2);border-color:var(--tepi);color:var(--teks)}
+nav.kasus button:disabled{cursor:not-allowed}
+.aksi{display:flex;gap:8px;align-items:center}
+.pil{border:1px solid var(--tepi);background:var(--kaca2);border-radius:9px;padding:6px 10px;font-size:13px;color:var(--teks);text-decoration:none;white-space:nowrap}
+.bahasa{display:flex;border:1px solid var(--tepi);border-radius:9px;overflow:hidden}
+.bahasa button{border:0;background:transparent;padding:6px 10px;font-size:12.5px;color:var(--redup)}
+.bahasa button[aria-pressed="true"]{background:rgba(255,255,255,.12);color:var(--teks)}
+aside.panel{position:fixed;top:82px;bottom:16px;z-index:4;display:flex;flex-direction:column;overflow:hidden}
+aside.kiri{left:16px;width:332px}
+aside.kanan{right:16px;width:372px}
+.gulir{overflow:auto;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.15) transparent}
+.kepala{padding:16px 18px 12px;border-bottom:1px solid var(--tepi)}
+.kepala .kecil{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--redup);display:flex;align-items:center;gap:8px}
+.kepala .kecil i{width:7px;height:7px;border-radius:50%;background:var(--w,var(--biru));box-shadow:0 0 10px var(--w,var(--biru))}
+.kepala h2{margin:6px 0 2px;font-size:19px;line-height:1.25}
+.kepala p{margin:0;color:var(--redup);font-size:13px}
+.blok{padding:14px 18px;border-bottom:1px solid var(--tepi)}
+.blok:last-child{border-bottom:0}
+.blok h3{margin:0 0 10px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--redup);font-weight:600}
+dl.data{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:0;font-size:13px}
+dl.data dt{color:var(--redup)}
+dl.data dd{margin:0}
+dl.data dd.mono{font-family:var(--mono);font-size:12.5px}
+.penerbit{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--redup);margin-bottom:10px}
+.penerbit b{color:var(--teks);font-weight:600}
+.penerbit code{font-family:var(--mono);color:var(--ungu);font-size:12px}
+.bilah{flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.08);overflow:hidden;position:relative;min-width:40px}
+.bilah i{position:absolute;inset:0;width:40%;background:var(--ungu);border-radius:2px;animation:geser 1.2s ease-in-out infinite}
 @keyframes geser{0%{left:-40%}100%{left:100%}}
 .penerbit.siap .bilah{display:none}
-.kasus{display:flex;gap:8px;margin:22px 0 16px;flex-wrap:wrap}
-.kasus button{display:flex;align-items:center;gap:10px;border:1px solid var(--garis);background:var(--kertas);border-radius:8px;padding:9px 14px;color:var(--tinta);text-align:left}
-.kasus button svg{flex:none}
-.kasus button b{display:block;font-size:14px}
-.kasus button span{display:block;font-size:12px;color:var(--redup)}
-.kasus button[aria-selected="true"]{border-color:var(--tinta);box-shadow:inset 0 -3px 0 var(--aksen,var(--tinta))}
-.isi{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:16px;align-items:start;padding-bottom:16px}
-.kartu{background:var(--kertas);border:1px solid var(--garis);border-radius:10px}
-.kartu>h2{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--redup);margin:0;padding:12px 16px;border-bottom:1px solid var(--garis2);display:flex;align-items:center;gap:8px}
-.kartu>h2 .titik{width:8px;height:8px;border-radius:50%;background:var(--aksen)}
-.adegan{padding:14px 16px 6px}
-.adegan svg{width:100%;height:auto;display:block}
-.data{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;padding:4px 16px 14px;font-size:14px}
-.data dt{color:var(--redup)}
-.data dd{margin:0;overflow-wrap:anywhere}
-.data dd.mono{font-family:var(--mono);font-size:13px}
-.pabrik{border-top:1px solid var(--garis2);padding:14px 16px}
-.tombol{border:1px solid var(--tinta);background:var(--tinta);color:#fff;border-radius:7px;padding:9px 14px;font-weight:600;font-size:14px}
-.tombol:disabled{opacity:.45;cursor:not-allowed}
-.tombol.garis{background:var(--kertas);color:var(--tinta)}
-.hasilpabrik{margin:12px 0 0;padding:0;list-style:none;font-size:13.5px;display:none}
-.hasilpabrik.tampil{display:block}
-.hasilpabrik li{display:flex;gap:10px;padding:6px 0;border-top:1px dashed var(--garis2)}
-.hasilpabrik li:first-child{border-top:0}
-.hasilpabrik .pita{flex:none;width:4px;border-radius:2px}
-.hasilpabrik b{display:block;font-weight:600}
-.hasilpabrik code{font-family:var(--sans);font-size:13px;color:var(--redup);overflow-wrap:anywhere}
-.skenario{border-top:1px solid var(--garis2);padding:14px 16px 16px}
-.skenario h3{font-size:14px;margin:0 0 10px}
-.pilihan{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.pilihan button{border:1px solid var(--garis);background:var(--kertas);border-radius:8px;padding:10px 12px;text-align:left;color:var(--tinta);border-left:4px solid var(--warna)}
-.pilihan button:disabled{opacity:.45;cursor:not-allowed}
-.pilihan button b{display:block;font-size:14px}
-.pilihan button span{display:block;font-size:12.5px;color:var(--redup);line-height:1.35;margin-top:2px}
-.pilihan button.aktif{background:#f3f5f8;border-color:var(--tinta);border-left-color:var(--warna)}
-.konteks{padding:12px 16px;border-bottom:1px solid var(--garis2);font-size:13.5px;display:flex;gap:10px;flex-wrap:wrap;align-items:baseline}
-.konteks code{font-family:var(--mono);font-size:12.5px;background:#f3f5f8;padding:2px 6px;border-radius:4px;word-break:break-all}
-ol.jejak{list-style:none;margin:0;padding:6px 16px}
-ol.jejak li{display:grid;grid-template-columns:30px 1fr auto;gap:10px;padding:11px 0;border-top:1px solid var(--garis2);opacity:.45;transition:opacity .3s}
-ol.jejak li:first-child{border-top:0}
-ol.jejak li.jalan,ol.jejak li.ok,ol.jejak li.gagal,ol.jejak li.lewat{opacity:1}
-ol.jejak li.lewat{opacity:.4}
-.ikon{width:26px;height:26px;border-radius:50%;border:2px solid var(--garis);display:grid;place-items:center;font-size:13px;font-weight:700;color:var(--redup);background:var(--kertas)}
-li.jalan .ikon{border-color:var(--host);border-top-color:transparent;animation:putar .8s linear infinite;color:transparent}
+.tombol{width:100%;border:0;border-radius:10px;padding:11px 14px;font-weight:600;background:linear-gradient(180deg,#5aa9ff,#2f7fe0);color:#fff;box-shadow:0 8px 24px rgba(47,127,224,.35)}
+.tombol:disabled{background:rgba(255,255,255,.08);color:var(--samar);box-shadow:none;cursor:not-allowed}
+ul.pabrik{list-style:none;margin:10px 0 0;padding:0;display:none}
+ul.pabrik.tampil{display:block}
+ul.pabrik li{display:flex;gap:10px;padding:6px 0;font-size:12.5px}
+ul.pabrik li i{flex:none;width:3px;border-radius:2px;background:var(--w)}
+ul.pabrik b{display:block;font-weight:600;font-size:13px}
+ul.pabrik span{color:var(--redup);overflow-wrap:anywhere}
+.pilihan{display:grid;gap:8px}
+.pilihan button{display:block;text-align:left;border:1px solid var(--tepi);background:var(--kaca2);border-radius:10px;padding:10px 12px 10px 14px;position:relative;overflow:hidden}
+.pilihan button::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--w)}
+.pilihan button b{display:block;font-size:13.5px}
+.pilihan button span{display:block;font-size:12px;color:var(--redup);margin-top:2px;line-height:1.35}
+.pilihan button:hover:not(:disabled){background:rgba(255,255,255,.09)}
+.pilihan button.aktif{border-color:var(--w);background:rgba(255,255,255,.08)}
+.pilihan button:disabled{opacity:.42;cursor:not-allowed}
+.konteks{font-size:12px;color:var(--redup);margin-top:8px}
+.konteks code{display:block;margin-top:4px;font-family:var(--mono);font-size:11.5px;color:var(--teks);background:rgba(255,255,255,.05);border:1px solid var(--tepi);border-radius:7px;padding:5px 8px;overflow-wrap:anywhere}
+ol.jejak{list-style:none;margin:0;padding:4px 18px}
+ol.jejak li{display:grid;grid-template-columns:26px 1fr auto;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.05);opacity:.38}
+ol.jejak li:last-child{border-bottom:0}
+ol.jejak li.jalan,ol.jejak li.ok,ol.jejak li.gagal{opacity:1}
+ol.jejak li.lewat{opacity:.3}
+.ikon{width:24px;height:24px;border-radius:50%;border:1.5px solid rgba(255,255,255,.18);display:grid;place-items:center;font-size:11.5px;font-weight:700;color:var(--redup)}
+li.jalan .ikon{border-color:var(--biru);border-top-color:transparent;animation:putar .8s linear infinite;color:transparent}
 @keyframes putar{to{transform:rotate(360deg)}}
-li.ok .ikon{background:var(--ok);border-color:var(--ok);color:#fff}
-li.gagal .ikon{background:var(--gagal);border-color:var(--gagal);color:#fff}
-.jejak b{display:block;font-size:14.5px}
-.jejak p{margin:2px 0 0;font-size:13.5px;color:var(--redup)}
-.jejak .wkt{font-family:var(--mono);font-size:12px;color:var(--redup);white-space:nowrap;padding-top:3px}
-.putusan{margin:4px 16px 16px;border-radius:9px;padding:14px 16px;display:none;align-items:center;gap:14px;border:1px solid}
-.putusan.tampil{display:flex}
-.putusan.asli{background:var(--ok-bg);border-color:#b9dbc5;color:#1f5a38}
-.putusan.palsu{background:var(--gagal-bg);border-color:#efc4c1;color:#8a1d17}
-.putusan .cap{font-size:24px;font-weight:700;letter-spacing:.08em;border:3px solid currentColor;border-radius:6px;padding:2px 12px;transform:rotate(-3deg)}
-.putusan p{margin:0;font-size:14.5px}
-.putusan small{display:block;opacity:.8;font-size:13px}
-.banding{margin:0 16px 16px;border:1px solid var(--garis2);border-radius:8px;padding:10px 12px;display:none}
+li.ok .ikon{background:var(--ok);border-color:var(--ok);color:#06210f}
+li.gagal .ikon{background:var(--gagal);border-color:var(--gagal);color:#2a0606}
+.jejak b{display:block;font-size:13.5px}
+.jejak p{margin:2px 0 0;font-size:12.5px;color:var(--redup)}
+.jejak .wkt{font-family:var(--mono);font-size:11px;color:var(--samar);padding-top:3px;white-space:nowrap}
+.kosong{padding:22px 18px;color:var(--redup);font-size:13px}
+.banding{display:none;padding:12px 18px 16px;border-top:1px solid var(--tepi)}
 .banding.tampil{display:block}
-.banding .baris{display:grid;grid-template-columns:150px 1fr;gap:10px;align-items:baseline;padding:3px 0}
-.banding .baris span{font-size:12.5px;color:var(--redup)}
-.heks{font-family:var(--mono);font-size:12.5px;letter-spacing:.02em;word-break:break-all}
+.banding span{display:block;font-size:11.5px;color:var(--redup);margin-top:6px}
+.heks{font-family:var(--mono);font-size:11.5px;overflow-wrap:anywhere;line-height:1.5}
 .heks i{font-style:normal}
 .heks i.sama{color:var(--ok)}
-.heks i.beda{color:var(--gagal);background:#fbeceb}
-.kosong{padding:26px 16px;color:var(--redup);font-size:14px;text-align:center}
-.cara{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;padding:8px 0 30px}
-.cara .kartu{padding:14px 16px;border-top:4px solid var(--warna)}
-.cara h3{margin:0 0 6px;font-size:15px}
-.cara p{margin:0;font-size:13.5px;color:var(--redup)}
-footer{border-top:1px solid var(--garis);background:var(--kertas);font-size:13px;color:var(--redup)}
-footer .bungkus{padding:14px 20px;display:flex;gap:16px;flex-wrap:wrap}
-.sinyal{opacity:0}
-.sinyal.maju{animation:maju 1s ease-in-out}
-.sinyal.balik{animation:balik 1s ease-in-out}
-@keyframes maju{0%{opacity:0;transform:translateX(0)}15%{opacity:1}85%{opacity:1}100%{opacity:0;transform:translateX(var(--jarak))}}
-@keyframes balik{0%{opacity:0;transform:translateX(var(--jarak))}15%{opacity:1}85%{opacity:1}100%{opacity:0;transform:translateX(0)}}
-.lampu{transition:fill .3s}
-@media (max-width:900px){
-  .isi{grid-template-columns:1fr}
-  .cara{grid-template-columns:1fr}
-  .pembuka h1{font-size:24px}
+.heks i.beda{color:var(--gagal)}
+.putusan{position:fixed;left:50%;top:96px;transform:translateX(-50%);z-index:6;display:flex;align-items:center;gap:14px;padding:12px 22px 12px 14px;border-radius:14px;opacity:0;pointer-events:none}
+.putusan .cap{font-size:26px;font-weight:700;letter-spacing:.14em;padding:4px 14px;border:2.5px solid currentColor;border-radius:8px}
+.putusan.asli{color:var(--ok)}
+.putusan.palsu{color:var(--gagal)}
+.putusan p{margin:0;color:var(--teks);font-size:14px;max-width:340px}
+.putusan small{display:block;color:var(--redup);font-size:12px;margin-top:2px}
+.petunjuk{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:3;font-size:12px;color:var(--redup);padding:7px 12px;border-radius:999px;white-space:nowrap}
+.muat{position:fixed;inset:0;z-index:20;display:grid;place-items:center;background:#10151c;transition:opacity .6s}
+.muat.hilang{opacity:0;pointer-events:none}
+.muat div{text-align:center;color:var(--redup);font-size:13px}
+.muat b{display:block;color:var(--teks);font-size:18px;letter-spacing:.1em;margin-bottom:8px}
+.modal{position:fixed;inset:0;z-index:30;display:none;place-items:center;background:rgba(5,8,12,.55)}
+.modal.buka{display:grid}
+.modal .isi{max-width:760px;width:calc(100% - 32px);padding:22px 24px}
+.modal h2{margin:0 0 12px;font-size:20px}
+.modal .tiga{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.modal .tiga div{border-top:3px solid var(--w);padding-top:10px}
+.modal h3{margin:0 0 6px;font-size:14px}
+.modal p{margin:0;color:var(--redup);font-size:13px}
+.modal .tutup{margin-top:18px;width:auto;padding:9px 18px}
+#cap{position:fixed;left:50%;transform:translateX(-50%);bottom:24px;z-index:9;width:max-content;max-width:min(820px,calc(100% - 760px));background:rgba(10,14,20,.9);border:1px solid var(--tepi);border-left:6px solid var(--ok);border-radius:10px;padding:12px 18px;font-size:22px;font-weight:600;line-height:1.3;opacity:0;pointer-events:none;box-shadow:0 14px 40px rgba(0,0,0,.4)}
+body.rekam .petunjuk{display:none}
+body.rekam aside.kiri{display:none}
+body.rekam aside.kanan{width:360px}
+body.rekam #cap{left:16px;transform:none;max-width:calc(100% - 410px);font-size:20px}
+body.rekam .putusan{left:calc(50% - 188px)}
+@media (max-width:1180px){
+  aside.kiri{width:300px}
+  aside.kanan{width:330px}
+  nav.kasus button span{display:none}
 }
-@media (max-width:520px){
-  .bungkus{padding:0 16px}
-  .pilihan{grid-template-columns:1fr}
+@media (max-width:900px){
+  html,body{overflow:auto;height:auto}
+  body{display:flex;flex-direction:column}
+  #dunia{position:relative;inset:auto;order:1;flex:none;height:56vh;z-index:1}
+  aside.kiri{order:2}
+  aside.kanan{order:3}
+  header.atas{position:sticky;left:auto;right:auto;top:0;margin:0;border-radius:0;height:auto;flex-wrap:wrap;padding:10px 16px;gap:8px;z-index:7}
   .merek small{display:none}
-  .banding .baris{grid-template-columns:1fr;gap:0}
-  .kasus button{flex:1 1 calc(50% - 8px)}
+  nav.kasus{order:3;width:100%;overflow-x:auto}
+  nav.kasus button span{display:inline}
+  aside.panel{position:relative;top:auto;bottom:auto;left:auto;right:auto;width:auto;margin:12px 16px;overflow:visible;z-index:2}
+  .gulir{overflow:visible}
+  .putusan{top:auto;bottom:16px;position:fixed;width:calc(100% - 32px)}
+  .putusan p{max-width:none}
+  .petunjuk{display:none}
+  .modal .tiga{grid-template-columns:1fr}
 }
 </style>
 </head>
 <body>
-<header class="atas">
-  <div class="bungkus">
-    <div class="merek"><span class="bendera" aria-hidden="true"></span>GEMBOK <small data-t="sub"></small></div>
-    <div class="kanan">
-      <a class="tautan" href="../" data-t="model3d"></a>
-      <div class="bahasa" role="group" aria-label="Bahasa">
-        <button data-bahasa="id" aria-pressed="true">ID</button>
-        <button data-bahasa="en" aria-pressed="false">EN</button>
-      </div>
+<canvas id="dunia" aria-label="Adegan 3D"></canvas>
+
+<div class="muat" id="muat"><div><b>GEMBOK</b><span data-t="memuat"></span></div></div>
+
+<header class="atas kaca">
+  <div class="merek"><span class="bendera" aria-hidden="true"></span>GEMBOK <small data-t="sub"></small></div>
+  <nav class="kasus" id="kasus" role="tablist"></nav>
+  <div class="aksi">
+    <button class="pil" id="bukaInfo" data-t="tentang"></button>
+    <a class="pil" href="../" data-t="model3d"></a>
+    <div class="bahasa" role="group" aria-label="Bahasa">
+      <button data-bahasa="id" aria-pressed="true">ID</button>
+      <button data-bahasa="en" aria-pressed="false">EN</button>
     </div>
   </div>
 </header>
 
-<main class="bungkus">
-  <section class="pembuka">
-    <h1 data-t="judul"></h1>
-    <p data-t="lead"></p>
-    <div class="penerbit" id="penerbit">
-      <span class="lbl" data-t="penerbit"></span>
-      <span id="penerbitStatus"></span>
-      <span class="bilah"><i></i></span>
-      <code id="penerbitKunci"></code>
+<aside class="panel kiri kaca">
+  <div class="kepala" id="kepalaKiri"><div class="kecil"><i></i><span data-t="dokumen"></span></div><h2 id="judulKasus"></h2><p id="pemeriksa"></p></div>
+  <div class="gulir">
+    <div class="blok"><dl class="data" id="data"></dl></div>
+    <div class="blok">
+      <div class="penerbit" id="penerbit"><b data-t="penerbit"></b><span id="penerbitStatus"></span><span class="bilah"><i></i></span><code id="penerbitKunci"></code></div>
+      <button class="tombol" id="terbitkan" disabled></button>
+      <ul class="pabrik" id="pabrik"></ul>
     </div>
-  </section>
-
-  <nav class="kasus" id="kasus" role="tablist"></nav>
-
-  <section class="isi">
-    <div class="kartu" id="kiri">
-      <h2><span class="titik"></span><span data-t="dokumen"></span></h2>
-      <div class="adegan" id="adegan"></div>
-      <dl class="data" id="data"></dl>
-      <div class="pabrik">
-        <button class="tombol" id="terbitkan" disabled></button>
-        <ul class="hasilpabrik" id="hasilPabrik"></ul>
-      </div>
-      <div class="skenario">
-        <h3 data-t="pilihSkenario"></h3>
-        <div class="pilihan" id="pilihan"></div>
-      </div>
+    <div class="blok">
+      <h3 data-t="pilihSkenario"></h3>
+      <div class="pilihan" id="pilihan"></div>
     </div>
+  </div>
+</aside>
 
-    <div class="kartu" id="kanan">
-      <h2><span class="titik"></span><span data-t="jejak"></span></h2>
-      <div class="konteks"><span id="pemeriksaLabel"></span><code id="konteks">-</code></div>
-      <div class="kosong" id="kosong"></div>
-      <ol class="jejak" id="jejak" hidden></ol>
-      <div class="putusan" id="putusan"><div class="cap" id="cap"></div><p><span id="alasan"></span><small id="ringkas"></small></p></div>
-      <div class="banding" id="banding">
-        <div class="baris"><span data-t="buktiChip"></span><div class="heks" id="hBukti"></div></div>
-        <div class="baris"><span data-t="buktiHarapan"></span><div class="heks" id="hHarapan"></div></div>
-      </div>
+<aside class="panel kanan kaca">
+  <div class="kepala"><div class="kecil" style="--w:var(--toska)"><i></i><span data-t="jejak"></span></div><div class="konteks"><span data-t="konteksLbl"></span><code id="konteks">-</code></div></div>
+  <div class="gulir">
+    <div class="kosong" id="kosong"></div>
+    <ol class="jejak" id="jejak" hidden></ol>
+    <div class="banding" id="banding">
+      <span data-t="buktiChip"></span><div class="heks" id="hBukti"></div>
+      <span data-t="buktiHarapan"></span><div class="heks" id="hHarapan"></div>
     </div>
-  </section>
+  </div>
+</aside>
 
-  <section class="cara">
-    <div class="kartu" style="--warna:var(--core)"><h3 data-t="nyataJ"></h3><p data-t="nyataP"></p></div>
-    <div class="kartu" style="--warna:var(--puf)"><h3 data-t="modelJ"></h3><p data-t="modelP"></p></div>
-    <div class="kartu" style="--warna:var(--vault)"><h3 data-t="klonJ"></h3><p data-t="klonP"></p></div>
-  </section>
-</main>
+<div class="putusan kaca" id="putusan"><div class="cap" id="cap1"></div><p><span id="alasan"></span><small id="ringkas"></small></p></div>
+<div class="petunjuk kaca" data-t="petunjuk"></div>
+<div id="cap"></div>
 
-<footer><div class="bungkus"><span data-t="kaki"></span><a href="https://github.com/benditandayusaputra/gembok">github.com/benditandayusaputra/gembok</a></div></footer>
+<div class="modal" id="modal" role="dialog" aria-modal="true">
+  <div class="isi kaca">
+    <h2 data-t="tentangJ"></h2>
+    <div class="tiga">
+      <div style="--w:var(--ok)"><h3 data-t="nyataJ"></h3><p data-t="nyataP"></p></div>
+      <div style="--w:var(--oranye)"><h3 data-t="modelJ"></h3><p data-t="modelP"></p></div>
+      <div style="--w:var(--gagal)"><h3 data-t="klonJ"></h3><p data-t="klonP"></p></div>
+    </div>
+    <button class="tombol tutup" id="tutupInfo" data-t="tutup"></button>
+  </div>
+</div>
 
-<script>
-const T = {
-  id: {
-    sub: "Simulasi kasus nyata",
-    model3d: "Model 3D chip",
-    judul: "Dokumen asli membawa chip yang tidak bisa disalin. Coba palsukan.",
-    lead: "Pilih satu kasus, terbitkan dokumennya seperti di pabrik, lalu periksa dokumen asli dan tiga cara pemalsuan. Semua kriptografi berjalan sungguhan di peramban Anda: ML-KEM-768 (FIPS 203), tanda tangan LMS penerbit, dan SHA3-256.",
-    penerbit: "Penerbit (LMS):",
-    menyiapkan: "menyiapkan 1.024 kunci sekali pakai, hanya sekali",
-    siap: "siap, kunci publik",
-    galatMuat: "gagal memuat modul. Muat ulang halaman.",
-    dokumen: "Dokumen dan chip",
-    jejak: "Jejak pemeriksaan",
-    terbitkan: "Terbitkan di pabrik",
-    terbitkanUlang: "Sudah diterbitkan",
-    menerbitkan: "Menerbitkan...",
-    pilihSkenario: "Siapa yang datang ke pemeriksa?",
-    pemeriksa: "Pemeriksa",
-    idChip: "ID chip",
-    konteksLbl: "konteks:",
-    kosongBelum: "Terbitkan dokumen di pabrik dulu, lalu pilih siapa yang datang ke pemeriksa.",
-    kosongSiap: "Pilih skenario untuk memulai pemeriksaan.",
-    buktiChip: "Bukti dari chip",
-    buktiHarapan: "Bukti yang diharapkan",
-    asli: "ASLI", palsu: "PALSU",
-    pab1: "Kunci PUF didaftarkan", pab1d: (r) => `${fmt(r.siklus_puf)} siklus osilator; data bantu disimpan di dokumen, kuncinya tidak.`,
-    pab2: "Kunci ML-KEM-768 dibuat di dalam chip", pab2d: (r) => `kunci publik ${r.panjang_ek} byte: ${r.ek_awal}...`,
-    pab3: "Sertifikat ditandatangani penerbit", pab3d: (r) => `tanda tangan LMS ${r.panjang_ttd} byte untuk ${r.id_chip}`,
-    sk: {
-      asli: ["Dokumen asli", "Pemegang sah menempelkan dokumen yang diterbitkan pabrik."],
-      klon: ["Chip dikloning", "Pemalsu menyalin sertifikat dan data bantu ke chip lain."],
-      klon_daftar: ["Tiruan daftar sendiri", "Chip tiruan membuat kunci PUF baru lalu memakai sertifikat curian."],
-      ulang: ["Putar ulang bukti", "Pemalsu merekam jawaban chip asli dan mengirimnya lagi."]
-    },
-    l: {
-      sertifikat: "Periksa sertifikat",
-      nyala: "Nyalakan chip, pulihkan kunci PUF",
-      tantangan: "Kirim tantangan acak",
-      bukti: "Chip menjawab",
-      cocokkan: "Cocokkan bukti"
-    },
-    d: {
-      sertifikat: (r) => `Tanda tangan LMS penerbit sah. ID chip ${r.id}.`,
-      nyalaOk: (r) => `Kunci PUF pulih pada percobaan ke-${r.percobaan}. Kunci rahasia tidak pernah keluar dari chip.`,
-      nyalaGagal: () => `Lima kali dicoba, kunci tidak pulih: osilator chip ini berbeda sehingga data bantu yang disalin ditolak.`,
-      nyalaSendiri: () => `Chip tiruan membangkitkan kunci dari PUF-nya sendiri. Kunci itu bukan pasangan sertifikat.`,
-      tantangan: (r) => `Encaps ML-KEM-768 ke kunci publik di sertifikat: sandi ${fmt(r.panjang_sandi)} byte dikirim, rahasia 32 byte disimpan pemeriksa.`,
-      bukti: (r) => `Chip membuka sandi dan menghitung bukti 32 byte dalam ${fmt(r.siklus)} siklus (${fmt(r.us_chip)} µs pada 50 MHz).`,
-      buktiUlang: () => `Yang dikirim bukan jawaban chip, melainkan bukti rekaman dari pemeriksaan sebelumnya.`,
-      cocokOk: () => `SHA3-256 atas rahasia dan konteks sama persis dengan bukti chip.`,
-      cocokGagal: () => `Bukti berbeda dari yang diharapkan pemeriksa.`,
-      lewat: () => `Tidak dijalankan.`
-    },
-    alasan: {
-      asli: "Bukti cocok dengan kunci publik di sertifikat.",
-      klon: "Chip ini tidak bisa memulihkan kunci dari PUF yang didaftarkan.",
-      klon_daftar: "Chip tiruan tidak memegang kunci rahasia pasangan sertifikat.",
-      ulang: "Bukti lama tidak berlaku untuk tantangan yang baru."
-    },
-    ringkas: (r) => `Total ${fmt(r.ms_total, 1)} ms di peramban ini.`,
-    nyataJ: "Yang sungguhan di halaman ini",
-    nyataP: "ML-KEM-768 sesuai FIPS 203 (crypto/mlkem Go), tanda tangan hash LMS penerbit, dan SHA3-256. Kodenya sama dengan pemeriksa di repositori, dikompilasi ke WebAssembly.",
-    modelJ: "Yang disimulasikan",
-    modelP: "Chip dijalankan sebagai model perangkat lunak dengan peta register, kode galat, dan driver yang sama dengan perangkat keras. Jumlah siklus diambil dari simulasi RTL; PUF memakai model osilator dengan derau.",
-    klonJ: "Kenapa salinan gagal",
-    klonP: "Kunci rahasia tidak disimpan di mana pun. Kunci dibentuk ulang dari selisih kecepatan osilator setiap kali chip menyala, dan selisih itu berbeda pada setiap keping silikon.",
-    kaki: "GEMBOK · PERURI Chip Hackathon 2026 · Hak cipta dilindungi.",
-    kasus: {
-      paspor: ["Paspor elektronik", "Autogate imigrasi"],
-      ijazah: ["Ijazah digital", "Verifikasi oleh HRD"],
-      cukai: ["Pita cukai", "Pemeriksaan di gudang"],
-      akses: ["Kartu akses", "Pintu ruang server"]
-    }
-  },
-  en: {
-    sub: "Real-case simulation",
-    model3d: "3D chip model",
-    judul: "A genuine document carries a chip that cannot be copied. Try to forge it.",
-    lead: "Pick a case, issue the document as the factory would, then check the genuine document and three forgery attempts. All cryptography runs for real in your browser: ML-KEM-768 (FIPS 203), the issuer's LMS signature, and SHA3-256.",
-    penerbit: "Issuer (LMS):",
-    menyiapkan: "preparing 1,024 one-time keys, only once",
-    siap: "ready, public key",
-    galatMuat: "failed to load the module. Reload the page.",
-    dokumen: "Document and chip",
-    jejak: "Verification trace",
-    terbitkan: "Issue at the factory",
-    terbitkanUlang: "Issued",
-    menerbitkan: "Issuing...",
-    pilihSkenario: "Who walks up to the verifier?",
-    pemeriksa: "Verifier",
-    idChip: "Chip ID",
-    konteksLbl: "context:",
-    kosongBelum: "Issue the document at the factory first, then pick who walks up to the verifier.",
-    kosongSiap: "Pick a scenario to start the check.",
-    buktiChip: "Proof from the chip",
-    buktiHarapan: "Expected proof",
-    asli: "GENUINE", palsu: "FORGED",
-    pab1: "PUF key enrolled", pab1d: (r) => `${fmt(r.siklus_puf)} oscillator cycles; helper data is stored on the document, the key is not.`,
-    pab2: "ML-KEM-768 key generated inside the chip", pab2d: (r) => `public key ${r.panjang_ek} bytes: ${r.ek_awal}...`,
-    pab3: "Certificate signed by the issuer", pab3d: (r) => `LMS signature ${r.panjang_ttd} bytes for ${r.id_chip}`,
-    sk: {
-      asli: ["Genuine document", "The rightful holder taps the document issued at the factory."],
-      klon: ["Cloned chip", "A forger copies the certificate and helper data onto another chip."],
-      klon_daftar: ["Self-enrolled fake", "A fake chip enrolls its own PUF key and reuses a stolen certificate."],
-      ulang: ["Replayed proof", "A forger records a genuine chip's answer and sends it again."]
-    },
-    l: {
-      sertifikat: "Check the certificate",
-      nyala: "Power up, recover the PUF key",
-      tantangan: "Send a random challenge",
-      bukti: "Chip answers",
-      cocokkan: "Compare the proof"
-    },
-    d: {
-      sertifikat: (r) => `Issuer LMS signature is valid. Chip ID ${r.id}.`,
-      nyalaOk: (r) => `PUF key recovered on attempt ${r.percobaan}. The secret key never leaves the chip.`,
-      nyalaGagal: () => `Five attempts, no key: this chip's oscillators differ, so the copied helper data is rejected.`,
-      nyalaSendiri: () => `The fake chip derives a key from its own PUF. That key does not match the certificate.`,
-      tantangan: (r) => `ML-KEM-768 Encaps to the certificate's public key: ${fmt(r.panjang_sandi)}-byte ciphertext sent, 32-byte secret kept by the verifier.`,
-      bukti: (r) => `The chip decapsulates and computes a 32-byte proof in ${fmt(r.siklus)} cycles (${fmt(r.us_chip)} µs at 50 MHz).`,
-      buktiUlang: () => `What arrives is not the chip's answer but a proof recorded from an earlier check.`,
-      cocokOk: () => `SHA3-256 over the secret and context matches the chip's proof exactly.`,
-      cocokGagal: () => `The proof differs from what the verifier expects.`,
-      lewat: () => `Not run.`
-    },
-    alasan: {
-      asli: "The proof matches the public key in the certificate.",
-      klon: "This chip cannot recover the key from the enrolled PUF.",
-      klon_daftar: "The fake chip does not hold the secret key paired with the certificate.",
-      ulang: "An old proof is not valid for a new challenge."
-    },
-    ringkas: (r) => `Total ${fmt(r.ms_total, 1)} ms in this browser.`,
-    nyataJ: "What is real on this page",
-    nyataP: "ML-KEM-768 per FIPS 203 (Go crypto/mlkem), the issuer's LMS hash-based signature, and SHA3-256. Same code as the verifier in the repository, compiled to WebAssembly.",
-    modelJ: "What is simulated",
-    modelP: "The chip runs as a software model with the same register map, error codes, and driver as the hardware. Cycle counts come from RTL simulation; the PUF uses a noisy oscillator model.",
-    klonJ: "Why copies fail",
-    klonP: "The secret key is stored nowhere. It is rebuilt from tiny oscillator speed differences every time the chip powers up, and those differences are unique to each piece of silicon.",
-    kaki: "GEMBOK · PERURI Chip Hackathon 2026 · All rights reserved.",
-    kasus: {
-      paspor: ["E-passport", "Immigration autogate"],
-      ijazah: ["Digital diploma", "HR verification"],
-      cukai: ["Excise stamp", "Warehouse inspection"],
-      akses: ["Access card", "Server room door"]
-    }
-  }
-};
-
-const KASUS = [
-  { id: "paspor", aksen: "var(--host)", benih: 101, chip: "PASPOR-B1234567",
-    konteks: "autogate|CGK-T3|gerbang-07",
-    pemeriksa: { id: "Autogate Terminal 3, Soekarno-Hatta", en: "Autogate Terminal 3, Soekarno-Hatta" },
-    data: { id: [["Pemegang", "Contoh Pemegang"], ["Jenis", "Paspor biasa 48 halaman"]], en: [["Holder", "Sample Holder"], ["Type", "Ordinary passport, 48 pages"]] } },
-  { id: "ijazah", aksen: "var(--core)", benih: 102, chip: "IJAZAH-2026-00417",
-    konteks: "verifikasi-ijazah|hrd|lowongan-221",
-    pemeriksa: { id: "Aplikasi HRD perusahaan", en: "Company HR app" },
-    data: { id: [["Lulusan", "Contoh Lulusan"], ["Program", "S1 Teknik Perangkat Lunak"]], en: [["Graduate", "Sample Graduate"], ["Program", "BSc Software Engineering"]] } },
-  { id: "cukai", aksen: "var(--puf)", benih: 103, chip: "CUKAI-HT-7731905",
-    konteks: "inspeksi-cukai|gudang-cikarang|lot-88",
-    pemeriksa: { id: "Pemindai petugas di gudang distributor", en: "Inspector's handheld at the distributor warehouse" },
-    data: { id: [["Barang", "Hasil tembakau, 1 slop"], ["Seri pita", "HT-7731905"]], en: [["Goods", "Tobacco product, 1 carton"], ["Stamp series", "HT-7731905"]] } },
-  { id: "akses", aksen: "var(--bus)", benih: 104, chip: "AKSES-DC-0092",
-    konteks: "pintu|ruang-server-b2|shift-malam",
-    pemeriksa: { id: "Pembaca kartu di pintu ruang server", en: "Card reader at the server room door" },
-    data: { id: [["Pemilik", "Contoh Karyawan"], ["Hak", "Ruang server lantai B2"]], en: [["Owner", "Sample Employee"], ["Access", "Server room, level B2"]] } }
-];
-
-const SKENARIO = [
-  { id: "asli", warna: "var(--ok)" },
-  { id: "klon", warna: "var(--puf)" },
-  { id: "klon_daftar", warna: "var(--vault)" },
-  { id: "ulang", warna: "var(--bus)" }
-];
-const LANGKAH = ["sertifikat", "nyala", "tantangan", "bukti", "cocokkan"];
-
-let bahasa = "id";
-let aktif = KASUS[0];
-let penerbitSiap = false;
-let sibuk = false;
-const terbit = {};
-const terakhir = {};
-const direkam = {};
-
-function fmt(n, d = 0) {
-  return Number(n).toLocaleString(bahasa === "id" ? "id-ID" : "en-US", { maximumFractionDigits: d, minimumFractionDigits: d });
-}
-const t = (k) => T[bahasa][k];
-const $ = (s) => document.querySelector(s);
-const tunda = (ms) => new Promise((r) => setTimeout(r, ms));
-
-const pekerja = new Worker("pekerja.js");
-let urut = 0;
-const menunggu = new Map();
-pekerja.onmessage = (e) => {
-  const { id, ok, hasil, galat } = e.data;
-  const p = menunggu.get(id);
-  menunggu.delete(id);
-  ok ? p.resolve(hasil) : p.reject(new Error(galat));
-};
-function panggil(fn, ...args) {
-  return new Promise((resolve, reject) => {
-    const id = ++urut;
-    menunggu.set(id, { resolve, reject });
-    pekerja.postMessage({ id, fn, args });
-  });
-}
-
-const GAMBAR = {
-  paspor: (a) => `
-    <rect x="18" y="22" width="122" height="168" rx="8" fill="#123c5a"/>
-    <rect x="24" y="28" width="110" height="156" rx="5" fill="none" stroke="#c8a85a" stroke-width="1.2" opacity=".7"/>
-    <circle cx="79" cy="86" r="22" fill="none" stroke="#c8a85a" stroke-width="2"/>
-    <path d="M66 86h26M79 73v26" stroke="#c8a85a" stroke-width="2"/>
-    <text x="79" y="136" text-anchor="middle" font-family="IBM Plex Sans,sans-serif" font-size="11" font-weight="600" fill="#e7d39b" letter-spacing="1.5">PASPOR</text>
-    <text x="79" y="151" text-anchor="middle" font-family="IBM Plex Sans,sans-serif" font-size="8" fill="#e7d39b" letter-spacing="1">REPUBLIK INDONESIA</text>
-`,
-  ijazah: (a) => `
-    <rect x="10" y="38" width="140" height="112" rx="3" fill="#fffdf6" stroke="#cdbf96" stroke-width="1.5"/>
-    <rect x="17" y="45" width="126" height="98" fill="none" stroke="#2e7d4f" stroke-width="1" opacity=".55"/>
-    <text x="80" y="68" text-anchor="middle" font-family="Georgia,serif" font-size="13" fill="#2b3a2f">IJAZAH</text>
-    <path d="M38 82h84M30 94h100M46 106h68" stroke="#b9c2b9" stroke-width="3" stroke-linecap="round"/>
-    <circle cx="118" cy="128" r="11" fill="#2e7d4f" opacity=".85"/>
-    <path d="M112 136l-3 10 9-4 9 4-3-10" fill="#2e7d4f" opacity=".85"/>`,
-  cukai: (a) => `
-    <rect x="22" y="34" width="116" height="130" rx="6" fill="#efe7da" stroke="#c9b89c" stroke-width="1.5"/>
-    <path d="M22 70h116" stroke="#c9b89c" stroke-width="1.5"/>
-    <rect x="58" y="22" width="44" height="160" rx="3" fill="#f6d8bf" stroke="#c2621a" stroke-width="1.5" transform="rotate(-8 80 100)"/>
-    <g transform="rotate(-8 80 100)">
-      <path d="M62 40h36M62 50h36M62 150h36M62 160h36" stroke="#c2621a" stroke-width="1.2" opacity=".6"/>
-      <text x="80" y="122" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="8" fill="#8a4512">CUKAI</text>
-    </g>`,
-  akses: (a) => `
-    <rect x="10" y="50" width="140" height="92" rx="9" fill="#ffffff" stroke="#b7aed0" stroke-width="1.5"/>
-    <rect x="10" y="50" width="140" height="22" rx="9" fill="#5b3f99"/>
-    <rect x="10" y="62" width="140" height="10" fill="#5b3f99"/>
-    <rect x="22" y="82" width="34" height="42" rx="3" fill="#e9e5f3"/>
-    <circle cx="39" cy="97" r="8" fill="#c5bce0"/>
-    <path d="M27 122c2-10 22-10 24 0" fill="#c5bce0"/>
-    <path d="M68 88h60M68 100h44M68 112h52" stroke="#d6d0e6" stroke-width="4" stroke-linecap="round"/>`
-};
-
-const PEMBACA = {
-  paspor: `<rect x="0" y="40" width="70" height="130" rx="6" fill="#e4e8ee" stroke="#9aa5b4" stroke-width="1.5"/><rect x="10" y="54" width="50" height="34" rx="3" fill="#1d2430"/><rect x="8" y="104" width="54" height="40" rx="4" fill="#cfd6df" stroke="#9aa5b4"/>`,
-  ijazah: `<rect x="8" y="34" width="56" height="112" rx="10" fill="#1d2430"/><rect x="13" y="46" width="46" height="84" rx="3" fill="#e8f3ec"/><circle cx="36" cy="138" r="3.5" fill="#5f6b7a"/>`,
-  cukai: `<rect x="10" y="40" width="52" height="98" rx="10" fill="#3a4351"/><rect x="17" y="50" width="38" height="44" rx="3" fill="#fbeee3"/><rect x="22" y="138" width="28" height="44" rx="6" fill="#3a4351"/>`,
-  akses: `<rect x="6" y="40" width="60" height="104" rx="8" fill="#e4e8ee" stroke="#9aa5b4" stroke-width="1.5"/><circle cx="36" cy="80" r="16" fill="none" stroke="#9aa5b4" stroke-width="2"/><circle cx="36" cy="80" r="8" fill="none" stroke="#9aa5b4" stroke-width="2"/>`
-};
-
-function chipKecil(x, y, warna) {
-  return `<g transform="translate(${x} ${y})"><rect width="22" height="18" rx="2.5" fill="#d8b75c" stroke="#9c7d2a"/><path d="M0 6h7M0 12h7M15 6h7M15 12h7M7 0v18M15 0v18" stroke="#9c7d2a" stroke-width=".9"/><rect x="7" y="4" width="8" height="10" fill="#e9cf84" stroke="#9c7d2a" stroke-width=".8"/></g>`;
-}
-
-function gambarAdegan() {
-  const k = aktif.id;
-  const posChip = { paspor: [68, 164], ijazah: [22, 120], cukai: [69, 92], akses: [114, 118] }[k];
-  const tampil = posChip ? chipKecil(posChip[0], posChip[1]) : "";
-  $("#adegan").innerHTML = `
-  <svg viewBox="0 0 440 224" role="img" aria-label="${T[bahasa].kasus[k][0]}">
-    <g transform="translate(14 0)">${GAMBAR[k]()}${tampil}</g>
-    <g transform="translate(330 4)">${PEMBACA[k]}
-      <circle class="lampu" id="lampu" cx="36" cy="188" r="6" fill="#c3cad4"/></g>
-    <path d="M190 100h120" stroke="#c3cad4" stroke-width="1.5" stroke-dasharray="4 5"/>
-    <g class="sinyal" id="sinyalMaju" style="--jarak:-118px"><g transform="translate(296 92)"><rect width="22" height="16" rx="3" fill="${aktif.aksen}"/><path d="M4 4l7 5 7-5" stroke="#fff" stroke-width="1.4" fill="none"/></g></g>
-    <g class="sinyal" id="sinyalBalik" style="--jarak:-118px"><g transform="translate(296 92)"><circle cx="11" cy="8" r="8" fill="#1d2430"/><path d="M7 8l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></g></g>
-    <text x="250" y="132" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" fill="#8a94a3" id="labelKabel"></text>
-    <text x="94" y="218" text-anchor="middle" font-family="IBM Plex Sans,sans-serif" font-size="12" fill="#5f6b7a">${T[bahasa].kasus[k][0]}</text>
-    <text x="366" y="218" text-anchor="middle" font-family="IBM Plex Sans,sans-serif" font-size="12" fill="#5f6b7a">${T[bahasa].pemeriksa}</text>
-  </svg>`;
-}
-
-function isiData() {
-  const baris = aktif.data[bahasa].map(([a, b]) => `<dt>${a}</dt><dd>${b}</dd>`).join("");
-  $("#data").innerHTML = baris + `<dt>${t("idChip")}</dt><dd class="mono">${aktif.chip}</dd>`;
-}
-
-function isiPabrik() {
-  const r = terbit[aktif.id];
-  const tombol = $("#terbitkan");
-  tombol.textContent = r ? t("terbitkanUlang") : t("terbitkan");
-  tombol.disabled = !!r || !penerbitSiap || sibuk;
-  const ul = $("#hasilPabrik");
-  if (!r) { ul.classList.remove("tampil"); ul.innerHTML = ""; return; }
-  ul.innerHTML = [
-    ["var(--puf)", t("pab1"), t("pab1d")(r)],
-    ["var(--core)", t("pab2"), t("pab2d")(r)],
-    ["var(--bus)", t("pab3"), t("pab3d")(r)]
-  ].map(([w, a, b]) => `<li><span class="pita" style="background:${w}"></span><div><b>${a}</b><code>${b}</code></div></li>`).join("");
-  ul.classList.add("tampil");
-}
-
-function isiSkenario() {
-  const ada = !!terbit[aktif.id];
-  $("#pilihan").innerHTML = SKENARIO.map((s) => {
-    const [a, b] = t("sk")[s.id];
-    return `<button data-mode="${s.id}" style="--warna:${s.warna}" ${!ada || sibuk ? "disabled" : ""}><b>${a}</b><span>${b}</span></button>`;
-  }).join("");
-  $("#pilihan").querySelectorAll("button").forEach((b) => b.addEventListener("click", () => periksa(b.dataset.mode)));
-}
-
-function isiKasus() {
-  $("#kasus").innerHTML = KASUS.map((k) => {
-    const [a, b] = t("kasus")[k.id];
-    return `<button role="tab" data-kasus="${k.id}" aria-selected="${k === aktif}" style="--aksen:${k.aksen}">
-      <svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="${k.aksen}"/></svg><span><b>${a}</b><span>${b}</span></span></button>`;
-  }).join("");
-  $("#kasus").querySelectorAll("button").forEach((b) => b.addEventListener("click", () => {
-    if (sibuk) return;
-    aktif = KASUS.find((k) => k.id === b.dataset.kasus);
-    render();
-  }));
-}
-
-function isiJejak() {
-  const r = terakhir[aktif.id];
-  $("#pemeriksaLabel").textContent = `${t("pemeriksa")}: ${aktif.pemeriksa[bahasa]} · ${t("konteksLbl")}`;
-  $("#konteks").textContent = r ? r.konteks : aktif.konteks + "|...";
-  if (!r) {
-    $("#kosong").hidden = false;
-    $("#kosong").textContent = terbit[aktif.id] ? t("kosongSiap") : t("kosongBelum");
-    $("#jejak").hidden = true;
-    $("#putusan").className = "putusan";
-    $("#banding").className = "banding";
-    return;
-  }
-  tulisJejak(r, LANGKAH.length);
-  tulisPutusan(r);
-}
-
-function teksLangkah(kunci, r) {
-  const d = t("d");
-  const s = r.langkah.find((x) => x.langkah === kunci);
-  if (!s) return [d.lewat(), "lewat"];
-  const data = { id: aktif.chip, ...r };
-  if (kunci === "sertifikat") return [d.sertifikat(data), s.ok ? "ok" : "gagal"];
-  if (kunci === "nyala") {
-    if (r.mode === "klon_daftar") return [d.nyalaSendiri(), "ok"];
-    return s.ok ? [d.nyalaOk(data), "ok"] : [d.nyalaGagal(), "gagal"];
-  }
-  if (kunci === "tantangan") return [d.tantangan(data), "ok"];
-  if (kunci === "bukti") return [r.mode === "ulang" ? d.buktiUlang() : d.bukti(data), r.mode === "ulang" ? "gagal" : "ok"];
-  return s.ok ? [d.cocokOk(), "ok"] : [d.cocokGagal(), "gagal"];
-}
-
-function tulisJejak(r, sampai, jalan = -1) {
-  const ol = $("#jejak");
-  $("#kosong").hidden = true;
-  ol.hidden = false;
-  ol.innerHTML = LANGKAH.map((k, i) => {
-    const s = r && r.langkah.find((x) => x.langkah === k);
-    let kelas = "", teks = "", wkt = "";
-    if (i < sampai) {
-      [teks, kelas] = teksLangkah(k, r);
-      if (s) wkt = `${fmt(s.ms, 1)} ms`;
-    } else if (i === jalan) kelas = "jalan";
-    const simbol = kelas === "ok" ? "✓" : kelas === "gagal" ? "✕" : kelas === "lewat" ? "·" : i + 1;
-    return `<li class="${kelas}"><span class="ikon">${simbol}</span><div><b>${t("l")[k]}</b><p>${teks}</p></div><span class="wkt">${wkt}</span></li>`;
-  }).join("");
-}
-
-function heks(a, b) {
-  let out = "";
-  for (let i = 0; i < a.length; i += 2) {
-    const x = a.slice(i, i + 2);
-    out += `<i class="${b && b.slice(i, i + 2) === x ? "sama" : "beda"}">${x}</i>`;
-  }
-  return out;
-}
-
-function tulisPutusan(r) {
-  const p = $("#putusan");
-  const asli = r.putusan === "ASLI";
-  p.className = "putusan tampil " + (asli ? "asli" : "palsu");
-  $("#cap").textContent = asli ? t("asli") : t("palsu");
-  $("#alasan").textContent = t("alasan")[r.mode];
-  $("#ringkas").textContent = t("ringkas")(r);
-  if (r.bukti) {
-    $("#hBukti").innerHTML = heks(r.bukti, r.harapan);
-    $("#hHarapan").innerHTML = heks(r.harapan, r.bukti);
-    $("#banding").className = "banding tampil";
-  } else $("#banding").className = "banding";
-  $("#lampu").setAttribute("fill", asli ? "#2e7d4f" : "#b3261e");
-}
-
-function kunci(v) {
-  sibuk = v;
-  isiPabrik();
-  isiSkenario();
-}
-
-async function terbitkan() {
-  kunci(true);
-  $("#terbitkan").textContent = t("menerbitkan");
-  try {
-    terbit[aktif.id] = await panggil("personalisasi", aktif.id, aktif.chip, aktif.benih);
-  } catch (e) {
-    alert(e.message);
-  }
-  kunci(false);
-  isiJejak();
-}
-
-function animasi(id) {
-  const el = $("#" + id);
-  if (!el) return;
-  el.classList.remove("maju", "balik");
-  void el.getBoundingClientRect();
-  el.classList.add(id === "sinyalMaju" ? "maju" : "balik");
-}
-
-async function periksa(mode) {
-  if (sibuk) return;
-  const k = aktif;
-  kunci(true);
-  $("#pilihan").querySelectorAll("button").forEach((b) => b.classList.toggle("aktif", b.dataset.mode === mode));
-  $("#putusan").className = "putusan";
-  $("#banding").className = "banding";
-  $("#lampu").setAttribute("fill", "#c3cad4");
-  const waktu = new Date().toISOString().slice(0, 19).replace("T", " ");
-  const konteks = `${k.konteks}|${waktu}`;
-  $("#konteks").textContent = konteks;
-  try {
-    if (mode === "ulang" && !direkam[k.id]) {
-      await panggil("periksa", k.id, "asli", `${k.konteks}|rekaman`);
-      direkam[k.id] = true;
-    }
-    const kerja = panggil("periksa", k.id, mode, konteks);
-    tulisJejak(null, 0, 0);
-    const r = await kerja;
-    if (mode === "asli") direkam[k.id] = true;
-    r.mode = mode;
-    r.konteks = konteks;
-    const jumlah = r.langkah.length;
-    for (let i = 0; i <= LANGKAH.length; i++) {
-      if (k !== aktif) break;
-      const terlihat = Math.min(i, jumlah);
-      tulisJejak({ ...r, langkah: r.langkah }, terlihat, i < jumlah ? i : -1);
-      if (i < jumlah) {
-        const kunciL = LANGKAH[i];
-        if (kunciL === "tantangan") animasi("sinyalMaju");
-        if (kunciL === "bukti") animasi("sinyalBalik");
-        $("#labelKabel").textContent = kunciL === "tantangan" ? `${fmt(r.panjang_sandi)} B` : kunciL === "bukti" ? "32 B" : "";
-        await tunda(kunciL === "nyala" && !r.langkah[1].ok ? 1500 : 1000);
-      }
-    }
-    $("#labelKabel").textContent = "";
-    terakhir[k.id] = r;
-    if (k === aktif) {
-      tulisJejak(r, LANGKAH.length);
-      tulisPutusan(r);
-    }
-  } catch (e) {
-    alert(e.message);
-  }
-  kunci(false);
-  $("#pilihan").querySelectorAll("button").forEach((b) => b.classList.toggle("aktif", b.dataset.mode === mode));
-}
-
-function terjemah() {
-  document.documentElement.lang = bahasa;
-  document.querySelectorAll("[data-t]").forEach((el) => { el.textContent = t(el.dataset.t); });
-  document.querySelectorAll("[data-bahasa]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.bahasa === bahasa));
-  $("#penerbitStatus").textContent = penerbitSiap ? t("siap") : t("menyiapkan");
-}
-
-function render() {
-  document.documentElement.style.setProperty("--aksen", aktif.aksen);
-  terjemah();
-  isiKasus();
-  gambarAdegan();
-  isiData();
-  isiPabrik();
-  isiSkenario();
-  isiJejak();
-  const r = terakhir[aktif.id];
-  if (r) $("#lampu").setAttribute("fill", r.putusan === "ASLI" ? "#2e7d4f" : "#b3261e");
-}
-
-document.querySelectorAll("[data-bahasa]").forEach((b) => b.addEventListener("click", () => {
-  if (sibuk) return;
-  bahasa = b.dataset.bahasa;
-  render();
-}));
-$("#terbitkan").addEventListener("click", terbitkan);
-
-const awal = new URLSearchParams(location.search);
-if (awal.get("bahasa") === "en") bahasa = "en";
-const kasusAwal = KASUS.find((k) => k.id === (location.hash || "").slice(1));
-if (kasusAwal) aktif = kasusAwal;
-render();
-
-panggil("siapkan").then((r) => {
-  penerbitSiap = true;
-  $("#penerbit").classList.add("siap");
-  $("#penerbitKunci").textContent = r.kunci_publik + "...";
-  terjemah();
-  isiPabrik();
-}).catch(() => {
-  $("#penerbitStatus").textContent = t("galatMuat");
-});
-</script>
+<script type="module" src="aplikasi.js"></script>
 </body>
 </html>
