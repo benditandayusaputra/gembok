@@ -1,0 +1,33 @@
+set_global_assignment -name FAMILY "Cyclone V"
+set_global_assignment -name DEVICE 5CSEBA6U23I7
+set_global_assignment -name TOP_LEVEL_ENTITY gembok_top
+set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
+set_global_assignment -name NUM_PARALLEL_PROCESSORS ALL
+set_global_assignment -name OPTIMIZATION_MODE BALANCED
+set_global_assignment -name SDC_FILE gembok.sdc
+set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/keccak_round.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/keccak_core.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/modmul.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/zeta_rom.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/poly_arith.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/sampler.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/codec.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/ram_tdp.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/poly_mem.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/ucode_rom.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/mlkem_ctrl.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/puf_ro.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/fuzzy_extractor.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/vault.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/avmm_bridge.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/gembok_top.sv
+set_parameter -name PUF_MODE 2
+set_location_assignment PIN_V11 -to clk
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to clk
+set_instance_assignment -name VIRTUAL_PIN ON -to reset
+set_instance_assignment -name VIRTUAL_PIN ON -to avs_address[*]
+set_instance_assignment -name VIRTUAL_PIN ON -to avs_read
+set_instance_assignment -name VIRTUAL_PIN ON -to avs_write
+set_instance_assignment -name VIRTUAL_PIN ON -to avs_writedata[*]
+set_instance_assignment -name VIRTUAL_PIN ON -to avs_readdata[*]
+set_instance_assignment -name VIRTUAL_PIN ON -to led[*]

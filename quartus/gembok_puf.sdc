@@ -1,0 +1,6 @@
+create_clock -name puf_osc_a -period 2.500 [get_nets {*u_puf|g_real.osc_a}]
+create_clock -name puf_osc_b -period 2.500 [get_nets {*u_puf|g_real.osc_b}]
+create_clock -name puf_half_a -period 5.000 [get_registers {*u_puf|g_real.ta}]
+create_clock -name puf_half_b -period 5.000 [get_registers {*u_puf|g_real.tb}]
+set_false_path -from [get_registers {*u_puf|clr}] -to [get_registers {*u_puf|g_real.ta *u_puf|g_real.tb *u_puf|g_real.ha[*] *u_puf|g_real.hb[*]}]
+set_false_path -from [get_registers {*u_puf|g_real.ta *u_puf|g_real.tb *u_puf|g_real.ha[*] *u_puf|g_real.hb[*]}] -to [get_registers {*u_puf|cnt_c[*] *u_puf|cnt_c1[*] *u_puf|bit_o *u_puf|solid}]
