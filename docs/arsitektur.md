@@ -11,29 +11,11 @@ GEMBOK terdiri atas dua lapis:
 1. **Inti ML-KEM** (`mlkem_ctrl` dan unit-unit di bawahnya): KeyGen, Encaps, dan Decaps lengkap untuk ML-KEM-512, 768, dan 1024, termasuk pemeriksaan masukan FIPS 203 Bagian 7.2 dan 7.3.
 2. **Brankas** (`vault`, `puf_ro`, `fuzzy_extractor`): kunci berasal dari PUF, kunci tidak punya jalur ke bus, memori rahasia dihapus setelah tiap operasi, host dikunci selama operasi berjalan, dan perintah BUKTIKAN dibatasi lajunya.
 
-Host (HPS ARM di DE10-Nano) berbicara dengan IP lewat `avmm_bridge` (Avalon-MM). Peta register dan urutan pemakaian ada di `docs/peta-register.md`.
+Host (HPS ARM di DE10-Nano) berbicara dengan IP lewat `avmm_bridge` (Avalon-MM). Peta register dan urutan pemakaian ada di [`docs/peta-register.md`](peta-register.md).
 
-```
-              HPS (Linux)
-                  |  Avalon-MM, jembatan lightweight
-          +-------v--------+
-          |  avmm_bridge   |  register perintah dan status, jendela memori byte
-          +-------+--------+
-                  |
-          +-------v--------+      +-----------+     +-----------------+
-          |     vault      |<---->|  puf_ro   |<--->| fuzzy_extractor |
-          | kunci PUF 256b |      +-----------+     +-----------------+
-          | penjaga akses  |
-          +-------+--------+
-                  | program, k, byte kunci (hanya saat diizinkan)
-          +-------v-----------------------------------------------+
-          | mlkem_ctrl: tabel langkah (ucode_rom), pencacah i, j, N |
-          |                                                       |
-          |  keccak_core   poly_arith   sampler   codec           |
-          |       |            |           |        |             |
-          |  byte_mem (8 KB)   poly_mem (16 slot polinomial)      |
-          +-------------------------------------------------------+
-```
+![Arsitektur GEMBOK](gambar/arsitektur-sistem.svg)
+
+![Alur pendaftaran dan pembuktian keaslian](gambar/alur-bukti.svg)
 
 Prinsip rancangan: hemat area. Satu inti Keccak, satu pengali modular, satu butterfly, dan matriks A dibangkitkan saat dipakai lalu dibuang. Kecepatan dikejar lewat penjadwalan, bukan dengan memperbanyak unit.
 
