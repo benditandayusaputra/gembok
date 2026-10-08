@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Model Chip GEMBOK</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root {
+  --bg: #0a0d12;
+  --panel: #10151d;
+  --line: #222b38;
+  --fg: #e6ebf2;
+  --muted: #8b97a8;
+  --accent: #f2a93b;
+  --ok: #2fbf8f;
+  --display: "IBM Plex Sans Condensed", "Arial Narrow", sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", Roboto, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 15px; line-height: 1.5; padding-inline: 16px; padding-block: 18px; }
+.wrap { max-width: 1320px; margin: 0 auto; display: grid; gap: 16px; }
+header { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px; }
+h1 { font-family: var(--display); font-weight: 700; font-size: clamp(26px, 4vw, 38px); letter-spacing: 0.01em; margin: 0; line-height: 1.05; text-wrap: balance; }
+h1 span { color: var(--accent); }
+.sub { color: var(--muted); margin: 6px 0 0; max-width: 64ch; }
+.modes { display: flex; gap: 6px; flex-wrap: wrap; }
+.modes button { font: 500 13px var(--body); color: var(--fg); background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 8px 14px; cursor: pointer; }
+.modes button[aria-pressed="true"] { background: var(--accent); color: #1a1205; border-color: var(--accent); }
+.modes button:focus-visible, .legend button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.main { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; }
+.stage { position: relative; height: min(74vh, 700px); min-height: 380px; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: radial-gradient(120% 90% at 50% 20%, #182131 0%, var(--bg) 70%); }
+#scene { width: 100%; height: 100%; display: block; touch-action: none; }
+.hint { position: absolute; left: 14px; bottom: 12px; font: 12px var(--mono); color: var(--muted); pointer-events: none; }
+.scale { position: absolute; right: 14px; bottom: 12px; font: 12px var(--mono); color: var(--muted); pointer-events: none; text-align: right; }
+aside { display: grid; gap: 12px; align-content: start; min-width: 0; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px; min-width: 0; }
+.eyebrow { font: 500 11px var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+#info h2 { font-family: var(--display); font-size: 22px; margin: 0 0 4px; line-height: 1.15; }
+#info .file { font: 12px var(--mono); color: var(--muted); margin: 0 0 10px; overflow-wrap: anywhere; }
+#info ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+.swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 8px; vertical-align: 1px; }
+.legend { display: grid; gap: 2px; }
+.legend button { all: unset; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 6px 8px; border-radius: 8px; cursor: pointer; font-size: 13.5px; }
+.legend button:hover, .legend button[aria-current="true"] { background: #18202c; }
+.legend small { font: 11.5px var(--mono); color: var(--muted); white-space: nowrap; }
+.specs { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; margin: 0; font-size: 13.5px; }
+.specs dt { color: var(--muted); }
+.specs dd { margin: 0; font-family: var(--mono); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+.note { font-size: 12.5px; color: var(--muted); margin: 0; }
+@media (max-width: 980px) { .main { grid-template-columns: 1fr; } .stage { height: 62vh; } }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>GEMBOK <span>G1</span></h1>
+      <p class="sub">Gambaran fisik chip identitas tahan kuantum: kemasan QFN-48, die dengan inti ML-KEM, brankas kunci, dan larik 768 osilator PUF. Putar, perbesar, lalu ketuk blok untuk melihat isinya.</p>
+    </div>
+    <div class="modes" role="group" aria-label="Tampilan">
+      <button id="m-utuh" aria-pressed="false">Kemasan utuh</button>
+      <button id="m-buka" aria-pressed="true">Dibuka</button>
+      <button id="m-die" aria-pressed="false">Tampak die</button>
+    </div>
+  </header>
+
+  <div class="main">
+    <div class="stage">
+      <canvas id="scene" aria-label="Model 3D chip GEMBOK"></canvas>
+      <div class="hint">seret untuk memutar, cubit atau gulir untuk memperbesar</div>
+      <div class="scale">kemasan 7 x 7 mm<br>die konsep 3,2 x 3,2 mm</div>
+    </div>
+
+    <aside>
+      <div class="card" id="info" aria-live="polite">
+        <p class="eyebrow">Blok terpilih</p>
+        <h2 id="i-title">Brankas kunci</h2>
+        <p class="file" id="i-file">rtl/vault.sv</p>
+        <ul id="i-lines"></ul>
+      </div>
+      <div class="card">
+        <p class="eyebrow">Isi die</p>
+        <div class="legend" id="legend"></div>
+      </div>
+      <div class="card">
+        <p class="eyebrow">Angka terukur di simulasi RTL</p>
+        <dl class="specs">
+          <dt>BUKTIKAN 768</dt><dd>45.357 siklus, 0,907 ms</dd>
+          <dt>Vektor NIST</dt><dd>240 dari 240</dd>
+          <dt>Tingkat</dt><dd>ML-KEM-512, 768, 1024</dd>
+          <dt>Clock</dt><dd>50 MHz</dd>
+          <dt>Prototipe</dt><dd>DE10-Nano, Cyclone V</dd>
+        </dl>
+      </div>
+      <p class="note">Ini ilustrasi konsep bentuk ASIC. Letak dan luas blok dibuat untuk menjelaskan isi chip, bukan hasil tata letak. Prototipe saat ini berjalan di FPGA DE10-Nano.</p>
+    </aside>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+(function () {
+  const BLOCKS = [
+    { id: "bmem", name: "Memori byte 8 KB", file: "rtl/mlkem_ctrl.sv, rtl/ram_tdp.sv", c: "#5b7bd5", r: [0.6, 0.6, 4.6, 3.6],
+      lines: ["EK, CT, DK, benih d z m, K, H(ek), TAG, konteks", "Data bantu PUF: topeng dan nilai cek", "Dua port: inti dan host (lewat brankas)", "Di FPGA: 8 blok M10K"] },
+    { id: "pmem", name: "Memori polinomial", file: "rtl/poly_mem.sv", c: "#7590e0", r: [5.0, 0.6, 9.4, 3.0],
+      lines: ["2048 x 24 bit, 16 slot polinomial", "Dua koefisien per kata", "Satu baca memberi operand dua butterfly", "Di FPGA: 5 sampai 6 blok M10K"] },
+    { id: "keccak", name: "Inti Keccak", file: "rtl/keccak_core.sv", c: "#1fb6c9", r: [0.6, 4.0, 3.6, 6.6],
+      lines: ["SHA3-256, SHA3-512, SHAKE128, SHAKE256", "Satu ronde per siklus, 24 siklus per permutasi", "Serap 1 byte per siklus, peras per 3 byte", "Dipakai juga untuk turunan kunci dan tag"] },
+    { id: "arith", name: "Aritmetika polinomial", file: "rtl/poly_arith.sv, rtl/modmul.sv", c: "#2fbf8f", r: [3.9, 3.4, 7.0, 6.6],
+      lines: ["NTT 940, NTT invers 940, PWM 520, LIN 264 siklus", "Satu butterfly per siklus", "Pengali Barrett mod 3329, 3 tahap, 3 DSP", "Diuji menyeluruh atas 3329 x 3329 pasangan"] },
+    { id: "sampler", name: "Sampler", file: "rtl/sampler.sv", c: "#58cfa4", r: [7.3, 3.4, 9.4, 4.9],
+      lines: ["SampleNTT (FIPS 203 Algoritma 7)", "CBD eta 2 dan eta 3 (Algoritma 8)", "226 sampai 271 siklus per polinomial"] },
+    { id: "codec", name: "Kodek", file: "rtl/codec.sv", c: "#7fdcb8", r: [7.3, 5.1, 9.4, 6.6],
+      lines: ["ByteEncode dan ByteDecode, d = 1 sampai 12", "Compress dan Decompress", "Cek modulus kunci publik (Bagian 7.2)"] },
+    { id: "ctrl", name: "Pengendali ML-KEM", file: "rtl/mlkem_ctrl.sv, rtl/ucode_rom.sv", c: "#8f7cf0", r: [0.6, 7.0, 3.0, 9.4],
+      lines: ["Tabel langkah: 250 langkah, 25 opcode", "KeyGen, Encaps, Decaps, cek kunci, DAFTAR, BUKTIKAN", "Penolakan implisit tanpa cabang", "Decaps selalu sama panjang, apa pun rahasianya"] },
+    { id: "bridge", name: "Antarmuka host", file: "rtl/avmm_bridge.sv", c: "#4fb3f6", r: [3.2, 7.0, 4.2, 9.4],
+      lines: ["Register perintah, status, CAPS, siklus", "Jendela memori byte untuk data publik", "Terkunci sejak siklus sesudah perintah ditulis", "Di FPGA: Avalon-MM ke HPS"] },
+    { id: "vault", name: "Brankas kunci", file: "rtl/vault.sv", c: "#f2a93b", r: [4.4, 7.0, 6.4, 9.4], shield: true,
+      lines: ["Kunci PUF 256 bit hanya hidup di register ini", "Keluar ke inti hanya saat DAFTAR atau BUKTIKAN", "Host membaca 0 selama chip bekerja", "Rahasia dihapus sesudah tiap operasi", "Pembatas laju BUKTIKAN, tahan reset"] },
+    { id: "fuzzy", name: "Pemulih kunci", file: "rtl/fuzzy_extractor.sv", c: "#f58a7a", r: [6.6, 7.0, 7.4, 9.4],
+      lines: ["Memilih 256 pasangan osilator andal", "Voting mayoritas 5 kali per pasangan", "Topeng dan nilai cek publik, diubah sedikit saja ditolak"] },
+    { id: "puf", name: "Larik PUF 768 osilator", file: "rtl/puf_ro.sv", c: "#f0657a", r: [7.6, 7.0, 9.4, 9.4], puf: true,
+      lines: ["768 osilator cincin, 1 NAND + 4 inverter", "Pasangan c dan c+1 dibandingkan", "Pencacah 20 bit dengan pembagi dua", "Variasi fabrikasi membuat tiap chip unik"] }
+  ];
+
+  const canvas = document.getElementById("scene");
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(36, 1, 0.1, 200);
+  camera.position.set(9.5, 9, 11);
+  const controls = new THREE.OrbitControls(camera, canvas);
+  controls.enableDamping = true;
+  controls.minDistance = 4;
+  controls.maxDistance = 30;
+  controls.maxPolarAngle = Math.PI * 0.49;
+  controls.target.set(0, 0.4, 0);
+
+  scene.add(new THREE.HemisphereLight(0xcfe0ff, 0x101418, 0.5));
+  const key = new THREE.DirectionalLight(0xffffff, 0.7); key.position.set(6, 12, 8); scene.add(key);
+  const rim = new THREE.DirectionalLight(0xffc477, 0.35); rim.position.set(-8, 5, -6); scene.add(rim);
+
+  const grid = new THREE.GridHelper(40, 40, 0x223044, 0x161e2a);
+  grid.position.y = -0.62; scene.add(grid);
+
+  const PKG = 8, BASE_H = 0.55, LID_H = 0.32, DIE = 4.4, DIE_Y = BASE_H - 0.18;
+  const pkg = new THREE.Group(); scene.add(pkg);
+
+  const base = new THREE.Mesh(new THREE.BoxGeometry(PKG, BASE_H, PKG), new THREE.MeshStandardMaterial({ color: 0x15181d, roughness: 0.8 }));
+  base.position.y = BASE_H / 2 - 0.6; pkg.add(base);
+  const cavity = new THREE.Mesh(new THREE.BoxGeometry(PKG - 1.0, 0.02, PKG - 1.0), new THREE.MeshStandardMaterial({ color: 0x23282f, roughness: 0.6 }));
+  cavity.position.y = -0.6 + BASE_H + 0.01; pkg.add(cavity);
+  const pad = new THREE.Mesh(new THREE.BoxGeometry(DIE + 0.5, 0.04, DIE + 0.5), new THREE.MeshStandardMaterial({ color: 0xb8bcc2, metalness: 0.9, roughness: 0.3 }));
+  pad.position.y = -0.6 + BASE_H + 0.03; pkg.add(pad);
+
+  const leadMat = new THREE.MeshStandardMaterial({ color: 0xcfd3d8, metalness: 1, roughness: 0.25 });
+  const goldMat = new THREE.MeshStandardMaterial({ color: 0xe0b45a, metalness: 1, roughness: 0.3 });
+  const leadPos = [];
+  const N = 12, pitch = (PKG - 1.6) / (N - 1);
+  for (let side = 0; side < 4; side++) {
+    for (let i = 0; i < N; i++) {
+      const t = -((PKG - 1.6) / 2) + i * pitch;
+      const lead = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.08, 0.5), leadMat);
+      const inner = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.03, 0.34), goldMat);
+      const o = PKG / 2 - 0.22, ii = PKG / 2 - 0.72;
+      let x, z, xi, zi, rot;
+      if (side === 0) { x = t; z = o; xi = t; zi = ii; rot = 0; }
+      if (side === 1) { x = o; z = -t; xi = ii; zi = -t; rot = Math.PI / 2; }
+      if (side === 2) { x = -t; z = -o; xi = -t; zi = -ii; rot = 0; }
+      if (side === 3) { x = -o; z = t; xi = -ii; zi = t; rot = Math.PI / 2; }
+      lead.position.set(x, -0.6 + 0.04, z); lead.rotation.y = rot; pkg.add(lead);
+      inner.position.set(xi, -0.6 + BASE_H + 0.03, zi); inner.rotation.y = rot; pkg.add(inner);
+      leadPos.push({ side, i, p: new THREE.Vector3(xi, -0.6 + BASE_H + 0.05, zi) });
+    }
+  }
+
+  const die = new THREE.Group(); pkg.add(die);
+  die.position.y = -0.6 + BASE_H + 0.06;
+  const s = DIE / 10;
+  const toX = v => (v - 5) * s, toZ = v => (v - 5) * s;
+  const silicon = new THREE.Mesh(new THREE.BoxGeometry(DIE, 0.12, DIE), new THREE.MeshStandardMaterial({ color: 0x2b3442, metalness: 0.55, roughness: 0.38 }));
+  silicon.position.y = 0.06; die.add(silicon);
+
+  const padMat = new THREE.MeshStandardMaterial({ color: 0xd6b35c, metalness: 1, roughness: 0.35 });
+  const wireMat = new THREE.MeshStandardMaterial({ color: 0xf1cf7a, metalness: 1, roughness: 0.25 });
+  const wires = new THREE.Group(); pkg.add(wires);
+  leadPos.forEach(({ side, i, p }) => {
+    const t = 0.55 + i * (8.9 / (N - 1));
+    let dx, dz;
+    if (side === 0) { dx = toX(t); dz = toZ(9.75); }
+    if (side === 1) { dx = toX(9.75); dz = toZ(10 - t); }
+    if (side === 2) { dx = toX(10 - t); dz = toZ(0.25); }
+    if (side === 3) { dx = toX(0.25); dz = toZ(t); }
+    const bp = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.02, 0.11), padMat);
+    bp.position.set(dx, 0.13, dz); die.add(bp);
+    const a = new THREE.Vector3(dx, die.position.y + 0.14, dz);
+    const mid = a.clone().lerp(p, 0.4); mid.y += 0.55;
+    const curve = new THREE.QuadraticBezierCurve3(a, mid, p);
+    wires.add(new THREE.Mesh(new THREE.TubeGeometry(curve, 16, 0.012, 5, false), wireMat));
+  });
+
+  const pickables = [];
+  const blockMeshes = {};
+  BLOCKS.forEach(b => {
+    const [x0, z0, x1, z1] = b.r;
+    const w = (x1 - x0) * s, d = (z1 - z0) * s;
+    const h = b.puf ? 0.03 : (b.id === "bmem" || b.id === "pmem" ? 0.07 : 0.1);
+    const col = new THREE.Color(b.c);
+    const mat = new THREE.MeshStandardMaterial({ color: col, roughness: 0.45, metalness: 0.15, emissive: col, emissiveIntensity: 0.05, transparent: true, opacity: b.puf ? 0.35 : 1 });
+    const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
+    m.position.set(toX((x0 + x1) / 2), 0.12 + h / 2, toZ((z0 + z1) / 2));
+    m.userData.block = b; die.add(m); pickables.push(m); blockMeshes[b.id] = m;
+    if (b.id === "bmem" || b.id === "pmem") {
+      const rows = b.id === "bmem" ? 6 : 4;
+      for (let r = 0; r < rows; r++) {
+        const line = new THREE.Mesh(new THREE.BoxGeometry(w * 0.9, 0.005, 0.012), new THREE.MeshBasicMaterial({ color: 0xc9d6ff, transparent: true, opacity: 0.35 }));
+        line.position.set(m.position.x, 0.12 + h + 0.003, m.position.z - d / 2 + (r + 0.5) * d / rows);
+        die.add(line);
+      }
+    }
+    if (b.shield) {
+      const ring = new THREE.Mesh(new THREE.BoxGeometry(w + 0.12, 0.05, d + 0.12), new THREE.MeshStandardMaterial({ color: 0xf2a93b, emissive: 0xf2a93b, emissiveIntensity: 0.5, wireframe: true }));
+      ring.position.copy(m.position); ring.position.y = 0.12 + h + 0.02; die.add(ring);
+      const core = new THREE.Mesh(new THREE.BoxGeometry(w * 0.35, 0.06, d * 0.25), new THREE.MeshStandardMaterial({ color: 0xffd38a, emissive: 0xf2a93b, emissiveIntensity: 0.8 }));
+      core.position.set(m.position.x, 0.12 + h + 0.03, m.position.z); die.add(core);
+    }
+    if (b.puf) {
+      const cols = 24, rows = 32, cw = w / cols, cd = d / rows;
+      const geo = new THREE.BoxGeometry(cw * 0.62, 0.06, cd * 0.62);
+      const im = new THREE.InstancedMesh(geo, new THREE.MeshStandardMaterial({ color: 0xff8a9a, emissive: 0xf0657a, emissiveIntensity: 0.55, roughness: 0.4 }), cols * rows);
+      const tmp = new THREE.Object3D();
+      let k = 0;
+      for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+        tmp.position.set(m.position.x - w / 2 + (c + 0.5) * cw, 0.12 + 0.06, m.position.z - d / 2 + (r + 0.5) * cd);
+        tmp.updateMatrix(); im.setMatrixAt(k++, tmp.matrix);
+      }
+      im.userData.block = b; die.add(im); pickables.push(im); b.inst = im;
+    }
+  });
+
+  function labelTexture(lines) {
+    const c = document.createElement("canvas"); c.width = 1024; c.height = 1024;
+    const g = c.getContext("2d");
+    g.fillStyle = "#121418"; g.fillRect(0, 0, 1024, 1024);
+    g.fillStyle = "#3a3f47"; g.beginPath(); g.arc(120, 120, 34, 0, Math.PI * 2); g.fill();
+    g.fillStyle = "#c9ced6"; g.textAlign = "center";
+    g.font = "700 150px 'IBM Plex Sans Condensed', Arial"; g.fillText("GEMBOK", 512, 470);
+    g.font = "500 64px 'IBM Plex Mono', monospace"; g.fillStyle = "#9aa1ab";
+    lines.forEach((l, i) => g.fillText(l, 512, 590 + i * 86));
+    const tx = new THREE.CanvasTexture(c); tx.encoding = THREE.sRGBEncoding; tx.anisotropy = 4;
+    return tx;
+  }
+  const lidTop = new THREE.MeshStandardMaterial({ map: labelTexture(["G1  ML-KEM PUF-ID", "FIPS 203  512 768 1024", "2610  JKT"]), roughness: 0.75 });
+  const lidSide = new THREE.MeshStandardMaterial({ color: 0x121418, roughness: 0.8 });
+  const lid = new THREE.Mesh(new THREE.BoxGeometry(PKG, LID_H, PKG), [lidSide, lidSide, lidTop, lidSide, lidSide, lidSide]);
+  pkg.add(lid);
+  const fonts = document.fonts && document.fonts.ready;
+  if (fonts) fonts.then(() => { lidTop.map = labelTexture(["G1  ML-KEM PUF-ID", "FIPS 203  512 768 1024", "2610  JKT"]); lidTop.needsUpdate = true; });
+
+  const LID_CLOSED = -0.6 + BASE_H + LID_H / 2;
+  const MODES = {
+    utuh: { lidY: LID_CLOSED, lidZ: 0, lidRot: 0, cam: [9.5, 9, 11], target: [0, 0, 0], wires: 0 },
+    buka: { lidY: 4.4, lidZ: -5.2, lidRot: 0.55, cam: [10.5, 10.5, 12.5], target: [0, 1.1, 0], wires: 1 },
+    die:  { lidY: 14, lidZ: -6, lidRot: 0.55, cam: [0.01, 9.2, 3.2], target: [0, 0, 0.2], wires: 1 }
+  };
+  let mode = "buka";
+  const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let anim = null;
+  function setMode(m, instant) {
+    mode = m;
+    ["utuh", "buka", "die"].forEach(k => document.getElementById("m-" + k).setAttribute("aria-pressed", String(k === m)));
+    const M = MODES[m];
+    anim = { t: 0, from: { lidY: lid.position.y, lidZ: lid.position.z, lidRot: lid.rotation.x, cam: camera.position.clone(), target: controls.target.clone() }, to: M };
+    if (instant || reduce) { anim.t = 1; step(1); anim = null; }
+  }
+  function ease(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
+  function step(t) {
+    const e = ease(t), a = anim.from, b = anim.to;
+    lid.position.y = a.lidY + (b.lidY - a.lidY) * e;
+    lid.rotation.x = a.lidRot + (b.lidRot - a.lidRot) * e;
+    lid.position.z = a.lidZ + (b.lidZ - a.lidZ) * e;
+    wires.visible = !(b === MODES.utuh && e > 0.9);
+    die.visible = wires.visible;
+    camera.position.lerpVectors(a.cam, new THREE.Vector3(...b.cam), e);
+    controls.target.lerpVectors(a.target, new THREE.Vector3(...b.target), e);
+    lidTop.opacity = lidSide.opacity = 1;
+  }
+  ["utuh", "buka", "die"].forEach(k => document.getElementById("m-" + k).addEventListener("click", () => setMode(k)));
+
+  const legend = document.getElementById("legend");
+  BLOCKS.forEach(b => {
+    const btn = document.createElement("button");
+    btn.type = "button"; btn.dataset.id = b.id;
+    btn.innerHTML = '<span><span class="swatch" style="background:' + b.c + '"></span>' + b.name + '</span><small>' + b.file.split(",")[0].replace("rtl/", "") + '</small>';
+    btn.addEventListener("click", () => { select(b.id); if (mode === "utuh") setMode("buka"); });
+    legend.appendChild(btn);
+  });
+
+  let selected = null, hovered = null;
+  function paint() {
+    BLOCKS.forEach(b => {
+      const m = blockMeshes[b.id];
+      const on = b.id === selected || b.id === hovered;
+      m.material.emissiveIntensity = on ? 0.6 : 0.05;
+      if (b.inst) b.inst.material.emissiveIntensity = on ? 1.1 : 0.55;
+    });
+    legend.querySelectorAll("button").forEach(x => x.setAttribute("aria-current", String(x.dataset.id === selected)));
+  }
+  function select(id) {
+    selected = id;
+    const b = BLOCKS.find(x => x.id === id);
+    document.getElementById("i-title").textContent = b.name;
+    document.getElementById("i-file").textContent = b.file;
+    const ul = document.getElementById("i-lines"); ul.innerHTML = "";
+    b.lines.forEach(l => { const li = document.createElement("li"); li.textContent = l; ul.appendChild(li); });
+    paint();
+  }
+
+  const ray = new THREE.Raycaster(), ptr = new THREE.Vector2();
+  function pick(ev) {
+    const r = canvas.getBoundingClientRect();
+    ptr.x = ((ev.clientX - r.left) / r.width) * 2 - 1;
+    ptr.y = -((ev.clientY - r.top) / r.height) * 2 + 1;
+    ray.setFromCamera(ptr, camera);
+    if (mode === "utuh") return null;
+    const hit = ray.intersectObjects(pickables, false)[0];
+    return hit ? hit.object.userData.block : null;
+  }
+  let down = null;
+  canvas.addEventListener("pointerdown", e => { down = [e.clientX, e.clientY]; });
+  canvas.addEventListener("pointerup", e => {
+    if (!down) return;
+    const moved = Math.hypot(e.clientX - down[0], e.clientY - down[1]); down = null;
+    if (moved > 6) return;
+    const b = pick(e); if (b) select(b.id);
+  });
+  canvas.addEventListener("pointermove", e => {
+    if (e.pointerType !== "mouse") return;
+    const b = pick(e); const id = b ? b.id : null;
+    if (id !== hovered) { hovered = id; canvas.style.cursor = id ? "pointer" : "grab"; paint(); }
+  });
+
+  function resize() {
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    if (!w || !h) return;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.fov = w < 520 ? 48 : 36;
+    camera.updateProjectionMatrix();
+  }
+  new ResizeObserver(resize).observe(canvas);
+  resize();
+
+  let last = performance.now(), clock = 0;
+  function loop(now) {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now; clock += dt;
+    if (anim) { anim.t = Math.min(1, anim.t + dt / 1.1); step(anim.t); if (anim.t >= 1) anim = null; }
+    if (!reduce && BLOCKS[10].inst) BLOCKS[10].inst.material.emissiveIntensity = (selected === "puf" || hovered === "puf" ? 1.1 : 0.45) + 0.2 * Math.sin(clock * 6);
+    controls.update();
+    renderer.render(scene, camera);
+    requestAnimationFrame(loop);
+  }
+  const start = (location.hash || "").replace("#", "");
+  setMode(MODES[start] ? start : "buka", true);
+  select("vault");
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
