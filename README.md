@@ -18,6 +18,10 @@ Penjelasan tiap modul ada di [`docs/arsitektur.md`](docs/arsitektur.md).
 
 Coba model 3D interaktifnya langsung di **[gembok-dashboard.vercel.app](https://gembok-dashboard.vercel.app/)**. Sumbernya [`index.html`](index.html), satu berkas statis tanpa proses build. Kemasan bisa diputar, dibuka, dan tiap blok di die bisa diketuk untuk melihat berkas RTL dan angkanya. Letak dan luas blok adalah ilustrasi konsep bentuk ASIC, bukan hasil tata letak. Prototipe saat ini berjalan di FPGA DE10-Nano.
 
+## Simulasi kasus nyata
+
+Coba palsukan dokumen ber-chip GEMBOK di **[gembok-dashboard.vercel.app/simulasi](https://gembok-dashboard.vercel.app/simulasi/)**. Ada empat kasus (paspor elektronik di autogate, ijazah digital, pita cukai, dan kartu akses) dan tiga cara pemalsuan: chip dikloning, chip tiruan mendaftarkan PUF-nya sendiri, dan bukti lama diputar ulang. Kriptografinya sungguhan dan berjalan di peramban: kode pemeriksa Go yang sama ([`sw/verifier/cmd/gembok-wasm`](sw/verifier/cmd/gembok-wasm/main.go)) dikompilasi ke WebAssembly, dengan ML-KEM-768 dari `crypto/mlkem`, tanda tangan LMS penerbit, dan SHA3-256. Chipnya dijalankan sebagai model perangkat lunak dengan peta register dan driver yang sama, dan jumlah siklusnya diambil dari simulasi RTL. Bangun ulang dengan `make simulasi`.
+
 ## Status
 
 | Bagian | Status |
@@ -84,6 +88,7 @@ Dari keadaan bersih `make semua` selesai sekitar 18 menit di mesin dua inti, sep
 | [`docs/api-pemeriksa.md`](docs/api-pemeriksa.md) | API HTTP layanan pemeriksa |
 | [`docs/tabel-langkah.txt`](docs/tabel-langkah.txt) | daftar 250 langkah pengendali (dibangkitkan) |
 | [`index.html`](index.html) | model 3D interaktif bentuk fisik chip, daring di [gembok-dashboard.vercel.app](https://gembok-dashboard.vercel.app/) |
+| [`simulasi/index.html`](simulasi/index.html) | simulasi kasus nyata di peramban, daring di [gembok-dashboard.vercel.app/simulasi](https://gembok-dashboard.vercel.app/simulasi/) |
 
 ## Batas
 

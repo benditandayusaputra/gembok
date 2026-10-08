@@ -2,7 +2,7 @@ PY ?= python3
 SIM ?= verilator
 CEK = $(PY) $(CURDIR)/tb/cek_hasil.py
 
-.PHONY: semua model ucode lint unit nist top hps verifier mutasi bersih
+.PHONY: semua model ucode lint unit nist top hps verifier simulasi mutasi bersih
 
 semua: model ucode lint unit nist top hps verifier
 
@@ -35,6 +35,10 @@ hps:
 
 verifier:
 	cd sw/verifier && go vet ./... && go test ./...
+
+simulasi:
+	cd sw/verifier && GOOS=js GOARCH=wasm go build -trimpath -ldflags="-s -w" -o ../../simulasi/gembok.wasm ./cmd/gembok-wasm
+	cp "$$(go env GOROOT)/lib/wasm/wasm_exec.js" simulasi/
 
 mutasi:
 	$(PY) tools/uji_mutasi.py
