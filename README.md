@@ -16,7 +16,7 @@ Penjelasan tiap modul ada di [`docs/arsitektur.md`](docs/arsitektur.md).
 
 ![Model 3D chip GEMBOK G1: kemasan utuh, dibuka, dan tampak die](docs/gambar/model-chip.png)
 
-Model 3D interaktif ada di [`index.html`](index.html), satu berkas statis tanpa proses build. Kemasan bisa diputar, dibuka, dan tiap blok di die bisa diketuk untuk melihat berkas RTL dan angkanya. Letak dan luas blok adalah ilustrasi konsep bentuk ASIC, bukan hasil tata letak. Prototipe saat ini berjalan di FPGA DE10-Nano.
+Coba model 3D interaktifnya langsung di **[gembok-dashboard.vercel.app](https://gembok-dashboard.vercel.app/)**. Sumbernya [`index.html`](index.html), satu berkas statis tanpa proses build. Kemasan bisa diputar, dibuka, dan tiap blok di die bisa diketuk untuk melihat berkas RTL dan angkanya. Letak dan luas blok adalah ilustrasi konsep bentuk ASIC, bukan hasil tata letak. Prototipe saat ini berjalan di FPGA DE10-Nano.
 
 ## Status
 
@@ -83,7 +83,7 @@ Dari keadaan bersih `make semua` selesai sekitar 18 menit di mesin dua inti, sep
 | [`docs/model-acuan.md`](docs/model-acuan.md) | model Python dan pemetaannya ke FIPS 203 |
 | [`docs/api-pemeriksa.md`](docs/api-pemeriksa.md) | API HTTP layanan pemeriksa |
 | [`docs/tabel-langkah.txt`](docs/tabel-langkah.txt) | daftar 250 langkah pengendali (dibangkitkan) |
-| [`index.html`](index.html) | model 3D interaktif bentuk fisik chip |
+| [`index.html`](index.html) | model 3D interaktif bentuk fisik chip, daring di [gembok-dashboard.vercel.app](https://gembok-dashboard.vercel.app/) |
 
 ## Batas
 
