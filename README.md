@@ -4,6 +4,14 @@ Chip identitas tahan kuantum berbasis ML-KEM (NIST FIPS 203) dengan kunci dari P
 
 Chip membuktikan dirinya asli tanpa pernah mengeluarkan kunci rahasianya. Pemeriksa mengunci sebuah rahasia dengan kunci publik chip (Encaps). Hanya chip asli yang bisa membukanya (Decaps) dan mengembalikan bukti 32 byte. Kunci rahasia dibangkitkan ulang dari PUF di dalam chip setiap kali dibutuhkan, lalu dihapus.
 
+## Arsitektur
+
+![Arsitektur GEMBOK](docs/gambar/arsitektur-sistem.svg)
+
+![Alur pendaftaran dan pembuktian keaslian](docs/gambar/alur-bukti.svg)
+
+Penjelasan tiap modul ada di [`docs/arsitektur.md`](docs/arsitektur.md).
+
 ## Status
 
 | Bagian | Status |
@@ -62,13 +70,13 @@ Dari keadaan bersih `make semua` selesai sekitar 18 menit di mesin dua inti, sep
 
 | Dokumen | Isi |
 |---|---|
-| `docs/arsitektur.md` | rancangan tiap modul, jadwal pipa, tabel langkah, brankas, PUF, anggaran siklus, sumber daya |
-| `docs/peta-register.md` | register, kode perintah, kode galat, peta memori, urutan pemakaian |
-| `docs/laporan-uji.md` | semua uji, hasilnya, dan cara mengulanginya |
-| `docs/panduan-papan.md` | langkah di Quartus dan di papan |
-| `docs/model-acuan.md` | model Python dan pemetaannya ke FIPS 203 |
-| `docs/api-pemeriksa.md` | API HTTP layanan pemeriksa |
-| `docs/tabel-langkah.txt` | daftar 250 langkah pengendali (dibangkitkan) |
+| [`docs/arsitektur.md`](docs/arsitektur.md) | rancangan tiap modul, jadwal pipa, tabel langkah, brankas, PUF, anggaran siklus, sumber daya |
+| [`docs/peta-register.md`](docs/peta-register.md) | register, kode perintah, kode galat, peta memori, urutan pemakaian |
+| [`docs/laporan-uji.md`](docs/laporan-uji.md) | semua uji, hasilnya, dan cara mengulanginya |
+| [`docs/panduan-papan.md`](docs/panduan-papan.md) | langkah di Quartus dan di papan |
+| [`docs/model-acuan.md`](docs/model-acuan.md) | model Python dan pemetaannya ke FIPS 203 |
+| [`docs/api-pemeriksa.md`](docs/api-pemeriksa.md) | API HTTP layanan pemeriksa |
+| [`docs/tabel-langkah.txt`](docs/tabel-langkah.txt) | daftar 250 langkah pengendali (dibangkitkan) |
 
 ## Batas
 
