@@ -77,3 +77,7 @@ Dari keadaan bersih `make semua` selesai sekitar 18 menit di mesin dua inti, sep
 - Tidak tahan serangan daya, elektromagnetik, injeksi galat, atau penyerang yang bisa mengganti bitstream.
 - Layanan pemeriksa Go hanya mendukung ML-KEM-768 dan 1024, karena pustaka standar Go tidak punya ML-KEM-512.
 - Lolos vektor ACVP bukan validasi resmi NIST.
+
+## Lisensi
+
+Hak cipta dilindungi. Tidak ada izin untuk menyalin, memakai, mengubah, atau menyebarkan isi repositori ini tanpa izin tertulis. Ketentuan lengkap ada di `LICENSE`.
