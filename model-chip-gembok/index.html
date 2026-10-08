@@ -28,6 +28,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--body); font-s
 header { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px; }
 h1 { font-family: var(--display); font-weight: 700; font-size: clamp(26px, 4vw, 38px); letter-spacing: 0.01em; margin: 0; line-height: 1.05; text-wrap: balance; }
 h1 span { color: var(--accent); }
+.flag { display: inline-block; width: 0.9em; height: 0.6em; margin-left: 0.35em; vertical-align: 0.08em; border-radius: 2px; background: linear-gradient(#e70011 50%, #ffffff 50%); box-shadow: 0 0 0 1px #2a3240; }
 .sub { color: var(--muted); margin: 6px 0 0; max-width: 64ch; }
 .modes { display: flex; gap: 6px; flex-wrap: wrap; }
 .modes button { font: 500 13px var(--body); color: var(--fg); background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 8px 14px; cursor: pointer; }
@@ -62,7 +63,7 @@ aside { display: grid; gap: 12px; align-content: start; min-width: 0; }
 <div class="wrap">
   <header>
     <div>
-      <h1>GEMBOK <span>G1</span></h1>
+      <h1>GEMBOK <span>G1</span><i class="flag" role="img" aria-label="Bendera Indonesia"></i></h1>
       <p class="sub">Gambaran fisik chip identitas tahan kuantum: kemasan QFN-48, die dengan inti ML-KEM, brankas kunci, dan larik 768 osilator PUF. Putar, perbesar, lalu ketuk blok untuk melihat isinya.</p>
     </div>
     <div class="modes" role="group" aria-label="Tampilan">
@@ -255,6 +256,10 @@ aside { display: grid; gap: 12px; align-content: start; min-width: 0; }
     const g = c.getContext("2d");
     g.fillStyle = "#121418"; g.fillRect(0, 0, 1024, 1024);
     g.fillStyle = "#3a3f47"; g.beginPath(); g.arc(120, 120, 34, 0, Math.PI * 2); g.fill();
+    g.fillStyle = "#e70011"; g.fillRect(770, 84, 165, 55);
+    g.fillStyle = "#f4f4f4"; g.fillRect(770, 139, 165, 55);
+    g.strokeStyle = "#3a3f47"; g.lineWidth = 4; g.strokeRect(770, 84, 165, 110);
+    g.fillStyle = "#9aa1ab"; g.font = "500 40px 'IBM Plex Mono', monospace"; g.textAlign = "center"; g.fillText("INDONESIA", 852, 250);
     g.fillStyle = "#c9ced6"; g.textAlign = "center";
     g.font = "700 150px 'IBM Plex Sans Condensed', Arial"; g.fillText("GEMBOK", 512, 470);
     g.font = "500 64px 'IBM Plex Mono', monospace"; g.fillStyle = "#9aa1ab";
